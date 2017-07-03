@@ -1,0 +1,12 @@
+/.idea
+/burp-idea.iml
+/out
+/target/maven-archiver
+/target/generated-sources
+/target/maven-status
+/target/surefire
+/target/classes
+/target/archive-tmp
+/target/test-classes/
+/target/original-burp-vulners-scanner-1.0-SNAPSHOT.jar
+!/target/burp-vulners-scanner-1.0-SNAPSHOT.jar
