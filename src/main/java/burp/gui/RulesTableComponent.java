@@ -20,8 +20,7 @@ class RulesTableComponent extends JTable {
     RulesTableComponent() {
         DefaultTableModel model = new DefaultTableModel();
         model.addColumn("Regex");
-        model.addColumn("Type");
-        model.addColumn("Severity");
+        model.addColumn("Software");
 
         setModel(model);
         this.defaultModel = model;

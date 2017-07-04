@@ -44,19 +44,17 @@ class SoftwareCallback implements Callback<JsonNode> {
     public void cancelled() {}
 
     public void completed(HttpResponse<JsonNode> response) {
+
         callbacks.printOutput("[Vulners] Response for " + domainName + " " + software.getName() + "/" + software.getVersion() +  ": " + response.getBody());
+
         if ("ERROR".equals(response.getBody().getObject().getString("result"))) {
-            try {
-                callbacks.addScanIssue(new SoftwareIssue(
-                        baseRequestResponse,
-                        helpers,
-                        callbacks,
-                        startStop,
-                        domains.get(domainName).getSoftware().get(software.getKey())
-                ));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            callbacks.addScanIssue(new SoftwareIssue(
+                    baseRequestResponse,
+                    helpers,
+                    callbacks,
+                    startStop,
+                    domains.get(domainName).getSoftware().get(software.getKey())
+            ));
             return;
         }
 
@@ -71,13 +69,7 @@ class SoftwareCallback implements Callback<JsonNode> {
                     .getSoftware()
                     .get(software.getKey())
                     .getVulnerabilities()
-                    .add(new Vulnerability(
-                            jBulletin.getString("id"),
-                            jBulletin.getString("title"),
-                            jBulletin.getString("description"),
-                            jBulletin.getString("type"),
-                            jBulletin.getJSONObject("cvss").getDouble("score")
-                    ));
+                    .add(new Vulnerability(jBulletin));
         }
 
         callbacks.addScanIssue(new SoftwareIssue(

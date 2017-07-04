@@ -2,12 +2,19 @@ package burp;
 
 import burp.models.Software;
 import burp.models.Vulnerability;
-import com.codemagi.burp.ScanIssue;
 import com.codemagi.burp.ScanIssueConfidence;
 import com.codemagi.burp.ScanIssueSeverity;
-import com.codemagi.burp.ScannerMatch;
+import com.google.common.base.Function;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Collections2;
+import com.google.common.collect.Ordering;
+import org.jtwig.environment.DefaultEnvironmentConfiguration;
+import org.jtwig.environment.Environment;
+import org.jtwig.environment.EnvironmentConfiguration;
+import org.jtwig.environment.EnvironmentFactory;
 
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 
 public class SoftwareIssue implements IScanIssue {
@@ -17,6 +24,7 @@ public class SoftwareIssue implements IScanIssue {
     private final IBurpExtenderCallbacks callbacks;
     private final List<int[]> startStop;
     private final Software software;
+    private final Environment environment;
 
     SoftwareIssue(IHttpRequestResponse baseRequestResponse, IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<int[]> startStop, Software software) {
         this.baseRequestResponse = baseRequestResponse;
@@ -25,44 +33,81 @@ public class SoftwareIssue implements IScanIssue {
         this.startStop = startStop;
 
         this.software = software;
+
+        // Environment
+        EnvironmentConfiguration configuration = new DefaultEnvironmentConfiguration();
+        EnvironmentFactory environmentFactory = new EnvironmentFactory();
+        this.environment = environmentFactory.create(configuration);
     }
 
     @Override
     public String getIssueName() {
-        if (software.getVulnerabilities().size() > 0) {
-            return "[Vulners] Vulnerable Software detected";
-        }
-
-        return "[Vulners] Software detected";
+        return hasVulnerabilities() ?
+                "[Vulners] Vulnerable Software detected" :
+                "[Vulners] Software detected";
     }
 
     @Override
     public String getIssueDetail() {
-        StringBuilder description = new StringBuilder(software.getKey().length() * 256);
-        description.append("The following vulnerabilities for software " + software.getName() + " - " + software.getVersion() + " found:<br><br>");
+        return hasVulnerabilities() ? getVulnerableIssue() : getClearIssue();
+    }
 
-        for (Vulnerability vulnerability : software.getVulnerabilities()) {
-            description.append("<li>");
-            description.append(vulnerability.getId()).append(": ").append(vulnerability.getDescription());
+    private String getVulnerableIssue() {
+        String template = "The following vulnerabilities for software <b>%s - %s</b> found: <br/>";
+        String itemTemplate = "<li> %s - %s %s - %s <br/> %s <br/><br/>";
+
+        StringBuilder string = new StringBuilder();
+        string.append(String.format(template, software.getName(), software.getVersion()));
+
+
+        for (final Vulnerability v: software.getVulnerabilities()) {
+            string.append(String.format(itemTemplate,
+                    v.getItemLink(),
+                    v.getItemCvssScore(),
+                    v.getExploitLink(),
+                    v.getTitle(),
+                    v.getItemDescription()
+            ));
         }
 
-        return description.toString();
+
+        return string.toString();
+    }
+
+    private String getClearIssue() {
+        String template = "The following software was detected <b>%s - %s</b>\n" +
+                "No vulnerabilities found for current version.";
+
+        return String.format(template, software.getName(), software.getVersion());
     }
 
     @Override
     public String getSeverity() {
-        if (software.getVulnerabilities().size() > 0) {
-            return ScanIssueSeverity.HIGH.getName();
+        if (hasVulnerabilities()) {
+            Collection<Double> scores = Collections2.transform(
+                    software.getVulnerabilities(), new Function<Vulnerability, Double>() {
+                        @Override
+                        public Double apply(Vulnerability vulnerability) {
+                            return vulnerability.getCvssScore();
+                        }
+                    }
+            );
+            Double maxValue = Ordering.natural().max(scores);
+
+            if (maxValue > 7) {
+                return ScanIssueSeverity.HIGH.getName();
+            } else if (maxValue > 4) {
+                return ScanIssueSeverity.MEDIUM.getName();
+            }
+            return ScanIssueSeverity.LOW.getName();
         }
 
-        return ScanIssueSeverity.MEDIUM.getName();
+        return ScanIssueSeverity.INFO.getName();
     }
 
     @Override
     public String getConfidence() {
-        ScanIssueConfidence output = ScanIssueConfidence.FIRM;
-
-        return output.getName();
+        return ScanIssueConfidence.FIRM.getName();
     }
 
     @Override
@@ -99,4 +144,9 @@ public class SoftwareIssue implements IScanIssue {
     public String getRemediationBackground() {
         return null;
     }
+
+    private boolean hasVulnerabilities() {
+        return software.getVulnerabilities().size() > 0;
+    }
+
 }
