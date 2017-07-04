@@ -6,13 +6,19 @@
 
     <groupId>burp-vulners-scanner</groupId>
     <artifactId>burp-vulners-scanner</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
+    <version>1.0-DEMO</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
 
@@ -38,6 +44,12 @@
             <groupId>com.mashape.unirest</groupId>
             <artifactId>unirest-java</artifactId>
             <version>1.4.9</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jtwig</groupId>
+            <artifactId>jtwig-core</artifactId>
+            <version>5.85.3.RELEASE</version>
         </dependency>
 
     </dependencies>
