@@ -1,0 +1,257 @@
+package burp.gui;
+
+import burp.BurpExtender;
+import burp.IBurpExtenderCallbacks;
+import burp.gui.path.PathsTable;
+import burp.gui.rules.RulesTable;
+import burp.gui.rules.RulesTableListener;
+import burp.gui.software.SoftwareTable;
+import burp.models.Domain;
+import burp.models.Software;
+import burp.models.Vulnerability;
+import com.intellij.uiDesigner.core.GridConstraints;
+import com.intellij.uiDesigner.core.GridLayoutManager;
+import com.intellij.uiDesigner.core.Spacer;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+public class TabComponent {
+    private JPanel rootPanel;
+    private JButton btnRuleAdd;
+    private JButton btnRuleRemove;
+    private JButton btnRulesLoad;
+    private JTextField txtRulesURL;
+    private JScrollPane scrlPanel;
+    private BurpExtender burpExtender;
+    private IBurpExtenderCallbacks callbacks;
+    private JTable tblRules;
+    private JTable tblSoftware;
+    private JTable tblPaths;
+    private JCheckBox cbxPathSearch;
+    private JButton btnTblSoftwareClear;
+    private JButton btnTblPathClear;
+    private JCheckBox cbxSoftwareShowVuln;
+
+    private RulesTable rulesTable;
+    private PathsTable pathsTable;
+    private SoftwareTable softwareTable;
+    private final Map<String, Domain> domains;
+
+    public TabComponent(BurpExtender burpExtender, IBurpExtenderCallbacks callbacks, final Map<String, Domain> domains) {
+        this.burpExtender = burpExtender;
+        this.callbacks = callbacks;
+        this.domains = domains;
+
+        $$$setupUI$$$();
+
+        /*
+         * Rules Table and support Buttons
+         */
+        final RulesTableListener ruleTableListener = new RulesTableListener(callbacks, this.tblRules, this.rulesTable.getDefaultModel(), burpExtender);
+        this.tblRules.getModel().addTableModelListener(ruleTableListener);
+
+        btnRuleAdd.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ruleTableListener.onAddButtonClick(e);
+                    }
+                }).start();
+            }
+        });
+
+        btnRuleRemove.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ruleTableListener.onRemoveButtonClick(e);
+                    }
+                }).start();
+            }
+        });
+
+        btnRulesLoad.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        ruleTableListener.loadMatchRules(txtRulesURL.getText());
+                    }
+                }).start();
+            }
+        });
+
+        btnTblPathClear.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                for (Map.Entry<String, Domain> d : domains.entrySet()) {
+                    d.getValue().setPaths(new HashMap<String, Set<Vulnerability>>());
+                }
+                pathsTable.getDefaultModel().setRowCount(0);
+            }
+        });
+
+        btnTblSoftwareClear.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                for (Map.Entry<String, Domain> d : domains.entrySet()) {
+                    d.getValue().setSoftware(new HashMap<String, Software>());
+                }
+                softwareTable.getDefaultModel().setRowCount(0);
+            }
+        });
+
+        cbxSoftwareShowVuln.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                softwareTable.refreshTable(domains, cbxSoftwareShowVuln.isSelected());
+            }
+        });
+
+    }
+
+    /**
+     * Creates Custom GUI forms
+     */
+    private void createUIComponents() {
+        tblRules = rulesTable = new RulesTable();
+        tblPaths = pathsTable = new PathsTable();
+        tblSoftware = softwareTable = new SoftwareTable();
+    }
+
+    public JPanel getRootPanel() {
+        return rootPanel;
+    }
+
+    public PathsTable getPathsTable() {
+        return pathsTable;
+    }
+
+    public SoftwareTable getSoftwareTable() {
+        return softwareTable;
+    }
+
+    public JCheckBox getCbxPathSearch() {
+        return cbxPathSearch;
+    }
+
+    public JCheckBox getCbxSoftwareShowVuln() {
+        return cbxSoftwareShowVuln;
+    }
+
+    /**
+     * Method generated by IntelliJ IDEA GUI Designer
+     * >>> IMPORTANT!! <<<
+     * DO NOT edit this method OR call it in your code!
+     *
+     * @noinspection ALL
+     */
+    private void $$$setupUI$$$() {
+        createUIComponents();
+        rootPanel = new JPanel();
+        rootPanel.setLayout(new GridLayoutManager(12, 19, new Insets(0, 0, 0, 0), -1, -1));
+        scrlPanel = new JScrollPane();
+        rootPanel.add(scrlPanel, new GridConstraints(2, 0, 1, 19, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        scrlPanel.setViewportView(tblRules);
+        final JPanel panel1 = new JPanel();
+        panel1.setLayout(new GridLayoutManager(1, 3, new Insets(0, 0, 0, 0), -1, -1));
+        rootPanel.add(panel1, new GridConstraints(3, 0, 1, 19, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        btnRuleAdd = new JButton();
+        btnRuleAdd.setText("Add");
+        panel1.add(btnRuleAdd, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer1 = new Spacer();
+        panel1.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, new Dimension(719, 11), null, 0, false));
+        btnRuleRemove = new JButton();
+        btnRuleRemove.setText("Remove");
+        panel1.add(btnRuleRemove, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JPanel panel2 = new JPanel();
+        panel2.setLayout(new GridLayoutManager(3, 3, new Insets(0, 0, 0, 0), -1, -1));
+        rootPanel.add(panel2, new GridConstraints(0, 0, 1, 19, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        final Spacer spacer2 = new Spacer();
+        panel2.add(spacer2, new GridConstraints(0, 2, 2, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final JLabel label1 = new JLabel();
+        label1.setFont(new Font(label1.getFont().getName(), Font.BOLD, 14));
+        label1.setText("Software vulnerability scanner");
+        panel2.add(label1, new GridConstraints(0, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label2 = new JLabel();
+        label2.setText("Match rules use regular expressions to flag software version numbers in server responses. ");
+        panel2.add(label2, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label3 = new JLabel();
+        label3.setText("Uses vulners.com API to detect vulnerabilities in flagged version of software.");
+        panel2.add(label3, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label4 = new JLabel();
+        label4.setFont(new Font(label4.getFont().getName(), Font.BOLD, label4.getFont().getSize()));
+        label4.setHorizontalAlignment(2);
+        label4.setIcon(new ImageIcon(getClass().getResource("/logo_small.png")));
+        label4.setText("");
+        panel2.add(label4, new GridConstraints(0, 0, 3, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(-1, 60), new Dimension(-1, 60), 0, false));
+        final Spacer spacer3 = new Spacer();
+        rootPanel.add(spacer3, new GridConstraints(4, 0, 1, 19, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        final JLabel label5 = new JLabel();
+        label5.setText("Rules URL");
+        rootPanel.add(label5, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        txtRulesURL = new JTextField();
+        txtRulesURL.setText("https://raw.githubusercontent.com/augustd/burp-suite-software-version-checks/master/src/main/resources/burp/match-rules.tab");
+        rootPanel.add(txtRulesURL, new GridConstraints(1, 4, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label6 = new JLabel();
+        label6.setFont(new Font(label6.getFont().getName(), Font.BOLD, 14));
+        label6.setText("Results");
+        rootPanel.add(label6, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        rootPanel.add(scrollPane1, new GridConstraints(9, 0, 1, 5, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(454, 126), null, 0, false));
+        scrollPane1.setViewportView(tblSoftware);
+        final JScrollPane scrollPane2 = new JScrollPane();
+        rootPanel.add(scrollPane2, new GridConstraints(9, 5, 1, 14, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(454, 126), null, 0, false));
+        scrollPane2.setViewportView(tblPaths);
+        btnRulesLoad = new JButton();
+        btnRulesLoad.setText("Load");
+        rootPanel.add(btnRulesLoad, new GridConstraints(1, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, 1, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 27), null, 0, false));
+        final JLabel label7 = new JLabel();
+        label7.setFont(new Font(label7.getFont().getName(), Font.BOLD, label7.getFont().getSize()));
+        label7.setText("Vulnerable Software");
+        rootPanel.add(label7, new GridConstraints(7, 0, 1, 5, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label8 = new JLabel();
+        label8.setFont(new Font(label8.getFont().getName(), Font.BOLD, label8.getFont().getSize()));
+        label8.setText("Possible vulnerable software uses specific paths");
+        rootPanel.add(label8, new GridConstraints(7, 5, 1, 13, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer4 = new Spacer();
+        rootPanel.add(spacer4, new GridConstraints(11, 0, 1, 19, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        btnTblSoftwareClear = new JButton();
+        btnTblSoftwareClear.setText("Clear");
+        rootPanel.add(btnTblSoftwareClear, new GridConstraints(10, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final Spacer spacer5 = new Spacer();
+        rootPanel.add(spacer5, new GridConstraints(1, 6, 1, 13, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, new Dimension(48, 11), null, 0, false));
+        cbxPathSearch = new JCheckBox();
+        cbxPathSearch.setEnabled(true);
+        cbxPathSearch.setSelected(false);
+        cbxPathSearch.setText("Use this experemental feature search");
+        rootPanel.add(cbxPathSearch, new GridConstraints(8, 6, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
+        btnTblPathClear = new JButton();
+        btnTblPathClear.setText("Clear");
+        rootPanel.add(btnTblPathClear, new GridConstraints(10, 5, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JSeparator separator1 = new JSeparator();
+        rootPanel.add(separator1, new GridConstraints(5, 0, 1, 19, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        cbxSoftwareShowVuln = new JCheckBox();
+        cbxSoftwareShowVuln.setSelected(true);
+        cbxSoftwareShowVuln.setText("Show only vulnerable software");
+        rootPanel.add(cbxSoftwareShowVuln, new GridConstraints(8, 1, 1, 4, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+    }
+
+    /**
+     * @noinspection ALL
+     */
+    public JComponent $$$getRootComponent$$$() {
+        return rootPanel;
+    }
+}
