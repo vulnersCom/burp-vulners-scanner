@@ -24,11 +24,11 @@ public class SoftwareTable extends JTable {
         this.defaultModel = model;
     }
 
-    public void refreshTable(Map<String, Domain> domains , boolean showNotVulnerable) {
+    public void refreshTable(Map<String, Domain> domains , boolean showOnlyVulnerable) {
         defaultModel.setRowCount(0);
         for(Map.Entry<String, Domain> d: domains.entrySet()) {
             for (Map.Entry<String, Software> s: d.getValue().getSoftware().entrySet()) {
-                if (!showNotVulnerable && s.getValue().getVulnerabilities().size() <= 0) {
+                if (showOnlyVulnerable && s.getValue().getVulnerabilities().size() <= 0) {
                     continue;
                 }
                 defaultModel.addRow(new Object[] {

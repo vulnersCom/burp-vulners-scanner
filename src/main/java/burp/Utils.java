@@ -14,6 +14,10 @@ import java.util.Set;
 public class Utils {
 
     public static Double getMaxScore(Set<Vulnerability> vulnerabilities) {
+        if (vulnerabilities.size() <= 0) {
+            return null;
+        }
+
         Collection<Double> scores = Collections2.transform(
                 vulnerabilities, new Function<Vulnerability, Double>() {
                     @Override
