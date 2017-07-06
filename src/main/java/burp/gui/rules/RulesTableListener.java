@@ -1,6 +1,7 @@
 package burp.gui.rules;
 
 import burp.IBurpExtenderCallbacks;
+import burp.VulnersService;
 import com.codemagi.burp.MatchRule;
 import com.codemagi.burp.PassiveScan;
 import com.codemagi.burp.ScanIssueConfidence;
@@ -31,9 +32,7 @@ public class RulesTableListener implements TableModelListener {
         this.table = table;
         this.model = model;
         this.scan = scan;
-
-        // Load match rules from vulners.com
-        loadMatchRules(DEFAULT_URL);
+//        loadMatchRules();
     }
 
     @Override
@@ -44,17 +43,13 @@ public class RulesTableListener implements TableModelListener {
     }
 
     private void onTableChage(TableModelEvent e) {
-        mCallbacks.printOutput(e.toString());
         int row = e.getFirstRow();
         int column = e.getColumn();
-        mCallbacks.printOutput("row: " + row + " column: " + column + " value: " + model.getValueAt(row, column));
         MatchRule rule = scan.getMatchRule(row);
-        mCallbacks.printOutput("rule 1: " + rule);
         if (rule == null) {
             rule = new MatchRule(Pattern.compile("."), 1, "", ScanIssueSeverity.LOW, ScanIssueConfidence.CERTAIN);
             scan.addMatchRule(rule);
         }
-        mCallbacks.printOutput("rule 2: " + rule);
 
         switch (column) {
             case 0:
@@ -77,11 +72,11 @@ public class RulesTableListener implements TableModelListener {
     }
 
 
-    public void onAddButtonClick(ActionEvent evt) {
+    public void onAddButtonClick(ActionEvent e) {
         model.addRow(new Object[]{"", 1, "", "Low", "Certain"});
     }
 
-    public void onRemoveButtonClick(ActionEvent evt) {
+    public void onRemoveButtonClick(ActionEvent e) {
         int[] rows = table.getSelectedRows();
         for (int i = 0; i < rows.length; i++) {
             model.removeRow(rows[i] - i);
@@ -92,7 +87,8 @@ public class RulesTableListener implements TableModelListener {
     /**
      * Load match rules from a file
      */
-    public void loadMatchRules(String url) {
+    public void loadMatchRules() {
+        String url = DEFAULT_URL;
         //load match rules from file
         try {
 
@@ -113,6 +109,7 @@ public class RulesTableListener implements TableModelListener {
                 try {
                     Pattern pattern = Pattern.compile(values[0]);
 
+                    System.out.println("[OLD] " + pattern);
                     scan.addMatchRule(new MatchRule(
                             pattern,
                             new Integer(values[1]),

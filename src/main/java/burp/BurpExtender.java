@@ -13,9 +13,10 @@ import java.util.*;
 
 public class BurpExtender extends PassiveScan {
 
-    private Map<String, Domain> domains = new HashMap<>();
-    private VulnersService vulnersService;
     private TabComponent tabComponent;
+    private VulnersService vulnersService;
+    private Map<String, Domain> domains = new HashMap<>();
+    private Map<String, Map<String, String>> matchRules = new HashMap<>();
 
     @Override
     protected void initPassiveScan() {
@@ -27,7 +28,8 @@ public class BurpExtender extends PassiveScan {
 
         mTab.addComponent(tabComponent.getRootPanel());
 
-        vulnersService = new VulnersService(callbacks, helpers, domains, tabComponent);
+        vulnersService = new VulnersService(this, callbacks, helpers, domains, tabComponent);
+        vulnersService.loadRules();
     }
 
     @Override
@@ -85,7 +87,10 @@ public class BurpExtender extends PassiveScan {
             Software software = new Software(
                     match.getType() + match.getMatchGroup(),
                     match.getType(),
-                    match.getMatchGroup());
+                    match.getMatchGroup(),
+                    matchRules.get(match.getType()).get("type"),
+                    matchRules.get(match.getType()).get("alias")
+            );
 
             domains.get(domainName)
                     .getSoftware()
@@ -102,7 +107,18 @@ public class BurpExtender extends PassiveScan {
 
     @Override
     protected IScanIssue getScanIssue(IHttpRequestResponse baseRequestResponse, List<ScannerMatch> matches, List<int[]> startStop) {
-        return new SoftwareIssue(baseRequestResponse, helpers, callbacks, startStop, new Software("", "", "")); //TODO
+        return new SoftwareIssue(baseRequestResponse, helpers, callbacks, startStop, new Software("", "", "", "", "")); //TODO
     }
 
+    public VulnersService getVulnersService() {
+        return vulnersService;
+    }
+
+    public Map<String, Map<String, String>> getMatchRules() {
+        return matchRules;
+    }
+
+    public void setMatchRules(Map<String, Map<String, String>> matchRules) {
+        this.matchRules = matchRules;
+    }
 }

@@ -1,7 +1,6 @@
 package burp;
 
 
-import burp.models.Domain;
 import burp.models.Vulnerability;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.JsonNode;
@@ -11,7 +10,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 abstract class VulnersRestCallback implements Callback<JsonNode> {
@@ -27,7 +25,22 @@ abstract class VulnersRestCallback implements Callback<JsonNode> {
      * Rise with response of success returned list of vulnerabilities
      * @param vulnerabilities List of returned vulnerabilities
      */
-    abstract public void onSuccess(Set<Vulnerability> vulnerabilities);
+    public void onScannerSuccess(Set<Vulnerability> vulnerabilities) {
+
+    };
+
+    public void onSuccess(JSONObject data) {
+        JSONArray bulletins = data.getJSONArray("search");
+
+        Set<Vulnerability> vulnerabilities = new HashSet<>();
+        for (Object bulletin : bulletins) {
+            vulnerabilities.add(
+                    new Vulnerability(((JSONObject) bulletin).getJSONObject("_source"))
+            );
+        }
+
+        onScannerSuccess(vulnerabilities);
+    }
 
     /**
      * Rise on error returned or no vulnerabilities found
@@ -43,19 +56,7 @@ abstract class VulnersRestCallback implements Callback<JsonNode> {
             onFail((JSONObject) responseBody.get("data"));
         }
 
-        JSONArray bulletins = responseBody
-                .getJSONObject("data")
-                .getJSONArray("search");
-
-
-        Set<Vulnerability> vulnerabilities = new HashSet<>();
-        for (Object bulletin : bulletins) {
-            vulnerabilities.add(
-                new Vulnerability(((JSONObject) bulletin).getJSONObject("_source"))
-            );
-        }
-
-        onSuccess(vulnerabilities);
+        onSuccess(responseBody.getJSONObject("data"));
     }
 
     public void failed(UnirestException e) {}

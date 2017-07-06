@@ -19,8 +19,10 @@ public class RulesTable extends JTable {
 
     public RulesTable() {
         DefaultTableModel model = new DefaultTableModel();
-        model.addColumn("Regex");
         model.addColumn("Software");
+        model.addColumn("Regex");
+        model.addColumn("Alias");
+        model.addColumn("Type");
 
         setModel(model);
         this.defaultModel = model;
