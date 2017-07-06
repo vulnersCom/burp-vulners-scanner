@@ -1,5 +1,5 @@
 # burp-vulners-scanner
-Burp Suite scanner plugin based on Vulners.com vulnerability database API
+Burp Suite scanner plugin based on [Vulners.com](https://vulners.com) vulnerability database API
 - Search fingerprints in http response (inspired by plugin "Software Version Reporter")
   and check found version in vulners.com vulnerability database
 - [Experemental] Check unique URLs in vulners.com finding exploits for such paths
