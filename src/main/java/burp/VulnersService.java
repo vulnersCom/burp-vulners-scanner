@@ -38,6 +38,8 @@ public class VulnersService {
         this.domains = domains;
         this.tabComponent = tabComponent;
         this.rateLimiter = RateLimiter.create(tabComponent.getTbxReqLimitValue());
+
+        Unirest.setDefaultHeader("user-agent", "vulners-burpscanner-v-1.0-DEMO");
     }
 
 

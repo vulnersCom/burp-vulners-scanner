@@ -41,7 +41,7 @@ public class BurpExtender extends PassiveScan {
         /*
          * Here we check possible vulnerabilities related on request path
          */
-        if (!callbacks.isInScope(url) || !tabComponent.getCbxPathSearch().isSelected()) {
+        if ((tabComponent.getCbxPathScanInScope().isSelected() && !callbacks.isInScope(url)) || !tabComponent.getCbxPathSearch().isSelected()) {
             return issues;
         }
 

@@ -37,7 +37,9 @@ public class PathIssue implements IScanIssue {
 
     @Override
     public String getIssueDetail() {
-        String template = "The following vulnerabilities for path <b>%s</b> found: <br/>";
+        String template = "! All found vulnerabilities have to be checked " +
+                "" +
+                "The following vulnerabilities for path <b>%s</b> found: <br/>";
         String itemTemplate = "<li> %s - %s %s - %s <br/> %s <br/><br/>";
 
         StringBuilder string = new StringBuilder();

@@ -6,7 +6,7 @@
 
     <groupId>burp-vulners-scanner</groupId>
     <artifactId>burp-vulners-scanner</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0-DEMO</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
