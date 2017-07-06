@@ -21,4 +21,4 @@ Burp Suite scanner plugin based on Vulners.com vulnerability database API
 3. open Burp Suite -> Extender -> Add -> path to plugin.jar
 
 
-Ready to install (skip 1-3) build [burp-vulners-scanner-1.0-SNAPSHOT.jar](https://github.com/vankyver/burp-vulners-scanner/blob/master/target/burp-vulners-scanner-1.0-SNAPSHOT.jar)
+Ready to install (skip 1-3) build [burp-vulners-scanner-1.0-DEMO.jar](https://github.com/vankyver/burp-vulners-scanner/blob/master/target/burp-vulners-scanner-1.0-DEMO.jar)
