@@ -10,6 +10,8 @@ Burp Suite scanner plugin based on [Vulners.com](https://vulners.com) vulnerabil
   and check found version in vulners.com vulnerability database
 - [Experemental] Check unique URLs in vulners.com finding exploits for such paths
 
+If Vulners Plugin detects vulnerable software it will show you CVE, advisoroies and even applicable exploits!
+
 # How to use
 
 
