@@ -1,4 +1,4 @@
-Uuid: ae62baff8fa24150991bad5eaf6d4d38
+Uuid: 5c99cf1016306c7d0c8770a8a53ccdf6
 ExtensionType: 1
 Name: Vulners scanner
 RepoName: burp-vulners-scanner
@@ -8,5 +8,5 @@ MinPlatformVersion: 0
 ProOnly: True
 Author: Vulners.com
 ShortDescription: Software vulnerability scanner based on Vulners.com audit API
-EntryPoint: target/burp-vulners-scanner-1.0.jar
+EntryPoint: target/burp-vulners-scanner-1.0-DEMO.jar
 BuildCommand: mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B
