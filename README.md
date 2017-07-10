@@ -15,7 +15,7 @@ If Vulners Plugin detects vulnerable software it will show you CVE, advisoroies 
 # How to use
 
 
-[![Burp Vulners plugin Tutorial Video](https://img.youtube.com/vi/klu7PTgUrow/0.jpg)](https://youtu.be/klu7PTgUrow)
+[![Burp Vulners plugin Tutorial Video](https://img.youtube.com/vi/klu7PTgUrow/0.jpg)](https://rutube.ru/video/97735fed2677220ca510c94b87727a09/)
 
 ## Requirements
 
