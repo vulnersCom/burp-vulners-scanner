@@ -20,7 +20,6 @@ import java.util.regex.PatternSyntaxException;
 
 public class RulesTableListener implements TableModelListener {
 
-    private static final String DEFAULT_URL = "https://raw.githubusercontent.com/augustd/burp-suite-software-version-checks/master/src/main/resources/burp/match-rules.tab";
     private final JTable table;
 
     private IBurpExtenderCallbacks mCallbacks;
@@ -32,7 +31,6 @@ public class RulesTableListener implements TableModelListener {
         this.table = table;
         this.model = model;
         this.scan = scan;
-//        loadMatchRules();
     }
 
     @Override
@@ -82,52 +80,6 @@ public class RulesTableListener implements TableModelListener {
             model.removeRow(rows[i] - i);
             scan.removeMatchRule(rows[i] - i);
         }
-    }
-
-    /**
-     * Load match rules from a file
-     */
-    public void loadMatchRules() {
-        String url = DEFAULT_URL;
-        //load match rules from file
-        try {
-
-            //read match rules from the stream
-            InputStream is = new URL(url).openStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is, "UTF-8"));
-
-            String str;
-            while ((str = reader.readLine()) != null) {
-                mCallbacks.printOutput("str: " + str);
-                if (str.trim().length() == 0) {
-                    continue;
-                }
-
-                String[] values = str.split("\\t");
-                this.model.addRow(new String[]{values[0], values[2]});
-
-                try {
-                    Pattern pattern = Pattern.compile(values[0]);
-
-                    System.out.println("[OLD] " + pattern);
-                    scan.addMatchRule(new MatchRule(
-                            pattern,
-                            new Integer(values[1]),
-                            values[2],
-                            ScanIssueSeverity.fromName(values[3]),
-                            ScanIssueConfidence.fromName(values[4]))
-                    );
-                } catch (PatternSyntaxException pse) {
-                    mCallbacks.printError("Unable to compile pattern: " + values[0] + " for: " + values[2]);
-                    scan.printStackTrace(pse);
-                }
-            }
-
-        } catch (Exception e) {
-            OutputStream error = mCallbacks.getStderr();
-            e.printStackTrace(new PrintStream(error));
-        }
-
     }
 
 }

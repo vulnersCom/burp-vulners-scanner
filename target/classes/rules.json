@@ -1,0 +1,237 @@
+{
+  "result": "OK",
+  "data": {
+    "rules": {
+      "jQuery": {
+        "regex": "jQuery v([\\d.]+)",
+        "alias": "jquery",
+        "type": "software"
+      },
+      "Phusion Passenger": {
+        "regex": "Phusion Passenger(?: \\([a-zA-Z_/]+\\))? ([\\d.]+)",
+        "alias": "cpe:/a:phusion:passenger",
+        "type": "cpe"
+      },
+      "IBM WebSphere Application Server": {
+        "regex": "WebSphere Application Server/([\\d.]+)",
+        "alias": "WebSphere",
+        "type": "software"
+      },
+      "jQuery UI Core": {
+        "regex": "jQuery UI Core ([\\d.]+)",
+        "alias": "jquery",
+        "type": "software"
+      },
+      "mod_perl": {
+        "regex": "mod_perl/([\\d.]+)",
+        "alias": "cpe:/a:apache:mod_perl",
+        "type": "cpe"
+      },
+      "Undertow": {
+        "regex": "X-Powered-By: Undertow/([\\d.]+)",
+        "alias": "cpe:/a:redhat:undertow",
+        "type": "cpe"
+      },
+      "Google Web Toolkit (GWT)": {
+        "regex": "\\$gwt_version\\s?=\\s?\"([\\d.]+)\"",
+        "alias": "cpe:/a:google:web_toolkit",
+        "type": "cpe"
+      },
+      "IBM HTTP Server": {
+        "regex": "IBM_HTTP_Server/([\\d.]+)",
+        "alias": "IBM HTTP Server",
+        "type": "software"
+      },
+      "Perl": {
+        "regex": "Perl/v([\\d.]+)",
+        "alias": "Perl",
+        "type": "software"
+      },
+      "CKEditor": {
+        "regex": "CKEDITOR.*version:\"([\\d.]+)\"",
+        "alias": "cpe:/a:ckeditor:ckeditor",
+        "type": "cpe"
+      },
+      "IBM TeaLeaf": {
+        "regex": "X-TeaLeaf-UIEventCapture-Version: ([\\d.]+)",
+        "alias": "cpe:/a:ibm:tealeaf_consumer_experience",
+        "type": "cpe"
+      },
+      "Oracle Java": {
+        "regex": "Oracle Corporation ([\\d\\._])+",
+        "alias": "Oracle Java",
+        "type": "software"
+      },
+      "Handlebars.js": {
+        "regex": "Handlebars\\.VERSION\\s*=\\s*[\"']([\\w.]+)[\"']",
+        "alias": "Handlebars",
+        "type": "software"
+      },
+      "Microsoft IIS": {
+        "regex": "Microsoft-IIS/([\\d.]+)",
+        "alias": "cpe:/a:microsoft:iis",
+        "type": "cpe"
+      },
+      "Apache Tomcat": {
+        "regex": "Apache Tomcat/([\\d.]+)",
+        "alias": "cpe:/a:apache:tomcat",
+        "type": "cpe"
+      },
+      "Apache Cocoon": {
+        "regex": "X-Cocoon-Version: ([\\d.]+)",
+        "alias": "cpe:/a:apache:cocoon",
+        "type": "cpe"
+      },
+      "ASP.Net MVC Framework": {
+        "regex": "X-AspNetMvc-Version: ([\\d.]+)",
+        "alias": "cpe:/a:microsoft:asp.net",
+        "type": "cpe"
+      },
+      "Microsoft .Net Framework": {
+        "regex": "Microsoft \\.NET Framework ([\\d.]+)",
+        "alias": "cpe:/a:microsoft:.net_framework",
+        "type": "cpe"
+      },
+      "Microsoft SharePoint": {
+        "regex": "MicrosoftSharePointTeamServices: ([\\d.]+)",
+        "alias": "cpe:/a:microsoft:sharepoint",
+        "type": "cpe"
+      },
+      "WildFly": {
+        "regex": "Server: WildFly/([\\d.]+)",
+        "alias": "cpe:/a:redhat:jboss_wildfly_application_server",
+        "type": "cpe"
+      },
+      "JBoss Enterprise Application Platform": {
+        "regex": "JBoss-EAP/([\\d.]+)",
+        "alias": "cpe:/a:redhat:jboss_enterprise_application_platform",
+        "type": "cpe"
+      },
+      "Oracle iPlanet": {
+        "regex": "Sun-Java-System-Web-Server/([\\d.]+.*)",
+        "alias": "cpe:/a:oracle:iplanet_web_server",
+        "type": "cpe"
+      },
+      "lighttpd": {
+        "regex": "lighttpd/([\\d.]+)",
+        "alias": "cpe:/a:lighttpd:lighttpd",
+        "type": "cpe"
+      },
+      "mod_ssl": {
+        "regex": "mod_ssl/([\\d.]+)",
+        "alias": "cpe:/a:modssl:mod_ssl",
+        "type": "cpe"
+      },
+      "AngularJS": {
+        "regex": "http://errors\\.angularjs\\.org/([\\d.]+)/",
+        "alias": "Angular",
+        "type": "software"
+      },
+      "nginx": {
+        "regex": "nginx/([\\d.]+)",
+        "alias": "nginx",
+        "type": "software"
+      },
+      "OpenCms": {
+        "regex": "OpenCms/([\\d.]+)",
+        "alias": "cpe:/a:alkacon:opencms",
+        "type": "cpe"
+      },
+      "jQuery UI": {
+        "regex": "jQuery UI ([\\d.]+)",
+        "alias": "jquery",
+        "type": "software"
+      },
+      "Ember": {
+        "regex": "Ember\\.VERSION\\s*=\\s*[\"']([\\w.]+)[\"']",
+        "alias": "cpe:/a:emberjs:ember.js",
+        "type": "cpe"
+      },
+      "Tornado Server": {
+        "regex": "TornadoServer/([\\d.]+)",
+        "alias": "cpe:/a:tornadoweb:tornado",
+        "type": "cpe"
+      },
+      "Nexpose": {
+        "regex": "NSC/([\\d.]+) \\(JVM\\)",
+        "alias": "cpe:/a:rapid7:nexpose",
+        "type": "cpe"
+      },
+      "Outlook Web Access": {
+        "regex": "X-OWA-Version: ([\\d.]+)",
+        "alias": "cpe:/a:microsoft:outlook_web_access",
+        "type": "cpe"
+      },
+      "Java Server Faces": {
+        "regex": "JSF/([\\d.]+)",
+        "alias": "cpe:/a:oracle:mojarra",
+        "type": "cpe"
+      },
+      "Ruby": {
+        "regex": "Ruby/([\\d.]+(?:/\\d{4}-\\d{2}-\\d{2})?)",
+        "alias": "Ruby",
+        "type": "software"
+      },
+      "Oracle OpenSSO": {
+        "regex": "Oracle OpenSSO ([\\d.]+.*)",
+        "alias": "cpe:/a:oracle:opensso",
+        "type": "cpe"
+      },
+      "Joomla!": {
+        "regex": "Joomla! ([\\d.]+)",
+        "alias": "Joomla",
+        "type": "software"
+      },
+      "Apache Coyote (Tomcat)": {
+        "regex": "Apache-Coyote/([\\d.]+)",
+        "alias": "cpe:/a:apache:tomcat",
+        "type": "cpe"
+      },
+      "Jetty": {
+        "regex": "Jetty\\([v\\d.]+\\)",
+        "alias": "cpe:/a:mortbay:jetty",
+        "type": "cpe"
+      },
+      "Apache": {
+        "regex": "Apache/([\\d.]+(?: \\([ \\w]+\\))?)",
+        "alias": "httpd",
+        "type": "software"
+      },
+      "Oracle-Application-Server": {
+        "regex": "Oracle-Application-Server-([\\d.]+.*)",
+        "alias": "cpe:/a:oracle:application_server",
+        "type": "cpe"
+      },
+      "PHP": {
+        "regex": "PHP/([\\d.]+)",
+        "alias": "cpe:/a:php:php",
+        "type": "cpe"
+      },
+      "OpenSSL": {
+        "regex": "OpenSSL/([a-z\\d.]+(-fips)?)",
+        "alias": "OpenSSL",
+        "type": "software"
+      },
+      "ASP.Net": {
+        "regex": "X-AspNet-Version: ([\\d.]+)",
+        "alias": "cpe:/a:microsoft:asp.net",
+        "type": "cpe"
+      },
+      "Microsoft CRM": {
+        "regex": "var APPLICATION_FULL_VERSION = '([\\d.]+)';",
+        "alias": "cpe:/a:microsoft:business_solutions_crm",
+        "type": "cpe"
+      },
+      "JBoss": {
+        "regex": "JBPAPP_([\\d_]+(?:GA)?)",
+        "alias": "cpe:/a:redhat:jboss",
+        "type": "cpe"
+      },
+      "jQuery JavaScript Library": {
+        "regex": "jQuery JavaScript Library v([\\d.]+)",
+        "alias": "jquery",
+        "type": "software"
+      }
+    }
+  }
+}

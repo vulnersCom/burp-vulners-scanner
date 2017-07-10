@@ -88,6 +88,7 @@ public class BurpExtender extends PassiveScan {
                     match.getType() + match.getMatchGroup(),
                     match.getType(),
                     match.getMatchGroup(),
+
                     matchRules.get(match.getType()).get("type"),
                     matchRules.get(match.getType()).get("alias")
             );
@@ -99,7 +100,7 @@ public class BurpExtender extends PassiveScan {
             //add a marker for code highlighting
             startStop.add(new int[]{match.getStart(), match.getEnd()});
 
-            vulnersService.checkSoftware(domainName, software, baseRequestResponse, startStop, matches);
+            vulnersService.checkSoftware(domainName, software, baseRequestResponse, startStop);
         }
 
         return new ArrayList<>();
@@ -114,11 +115,7 @@ public class BurpExtender extends PassiveScan {
         return vulnersService;
     }
 
-    public Map<String, Map<String, String>> getMatchRules() {
+    Map<String, Map<String, String>> getMatchRules() {
         return matchRules;
-    }
-
-    public void setMatchRules(Map<String, Map<String, String>> matchRules) {
-        this.matchRules = matchRules;
     }
 }

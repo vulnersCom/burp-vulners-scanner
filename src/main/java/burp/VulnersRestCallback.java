@@ -17,7 +17,7 @@ abstract class VulnersRestCallback implements Callback<JsonNode> {
 
     private IBurpExtenderCallbacks callbacks;
 
-    public VulnersRestCallback(IBurpExtenderCallbacks callbacks) {
+    VulnersRestCallback(IBurpExtenderCallbacks callbacks) {
         this.callbacks = callbacks;
     }
 
@@ -54,12 +54,15 @@ abstract class VulnersRestCallback implements Callback<JsonNode> {
 
         if ("ERROR".equals(responseBody.getString("result"))) {
             onFail((JSONObject) responseBody.get("data"));
+            return;
         }
 
         onSuccess(responseBody.getJSONObject("data"));
     }
 
-    public void failed(UnirestException e) {}
+    public void failed(UnirestException e) {
+        e.printStackTrace();
+    }
 
     public void cancelled() {}
 

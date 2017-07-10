@@ -6,6 +6,7 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Ordering;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -27,5 +28,20 @@ public class Utils {
                 }
         );
         return Ordering.natural().max(scores);
+    }
+
+    public static Collection<String> getVulnersList(Set<Vulnerability> vulnerabilities) {
+        if (vulnerabilities.size() <= 0) {
+            return null;
+        }
+
+        return Collections2.transform(
+                vulnerabilities, new Function<Vulnerability, String>() {
+                    @Override
+                    public String apply(Vulnerability vulnerability) {
+                        return vulnerability.getId();
+                    }
+                }
+        );
     }
 }

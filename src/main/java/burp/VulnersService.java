@@ -40,6 +40,7 @@ public class VulnersService {
         this.rateLimiter = RateLimiter.create(tabComponent.getTbxReqLimitValue());
 
         Unirest.setDefaultHeader("user-agent", "vulners-burpscanner-v-1.0-DEMO");
+        Unirest.setAsyncHttpClient(HttpClient.createSSLClient());
     }
 
 
@@ -50,9 +51,8 @@ public class VulnersService {
      * @param software
      * @param baseRequestResponse
      * @param startStop
-     * @param matches
      */
-    void checkSoftware(final String domainName, final Software software, final IHttpRequestResponse baseRequestResponse, final List<int[]> startStop, final List<ScannerMatch> matches) {
+    void checkSoftware(final String domainName, final Software software, final IHttpRequestResponse baseRequestResponse, final List<int[]> startStop) {
 
         // Limiting requests rate
         // TODO make non block MQ
@@ -136,7 +136,12 @@ public class VulnersService {
                                 .put(path, vulnerabilities);
 
                         // update gui component
-                        tabComponent.getPathsTable().getDefaultModel().addRow(new Object[]{domainName, path, 0, ""});
+                        tabComponent.getPathsTable().getDefaultModel().addRow(new Object[]{
+                                domainName,
+                                path,
+                                Utils.getMaxScore(vulnerabilities),
+                                Utils.getVulnersList(vulnerabilities)
+                        });
 
                         // add Burp issue
                         callbacks.addScanIssue(new PathIssue(

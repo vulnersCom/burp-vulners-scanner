@@ -36,7 +36,7 @@ public class SoftwareTable extends JTable {
                         s.getValue().getName(),
                         s.getValue().getVersion(),
                         Utils.getMaxScore(s.getValue().getVulnerabilities()), //TODO move maxScore field to model
-                        ""
+                        Utils.getVulnersList(s.getValue().getVulnerabilities())
                 });
             }
         }
