@@ -12,6 +12,9 @@ Burp Suite scanner plugin based on [Vulners.com](https://vulners.com) vulnerabil
 
 # How to use
 
+
+[![Burp Vulners plugin Tutorial Video](https://img.youtube.com/vi/klu7PTgUrow/0.jpg)](https://youtu.be/klu7PTgUrow)
+
 ## Requirements
 
 - Burp Suite - Professional Edition
