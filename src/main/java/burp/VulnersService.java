@@ -8,11 +8,11 @@ import burp.models.Vulnerability;
 import com.codemagi.burp.MatchRule;
 import com.codemagi.burp.ScanIssueConfidence;
 import com.codemagi.burp.ScanIssueSeverity;
-import com.codemagi.burp.ScannerMatch;
 import com.google.common.util.concurrent.RateLimiter;
 import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.HttpRequest;
 import org.apache.http.HttpHost;
+import org.apache.http.impl.client.BasicCookieStore;
 import org.json.JSONObject;
 
 import javax.swing.table.DefaultTableModel;
@@ -24,6 +24,7 @@ public class VulnersService {
 
     private static String BURP_API_URL = "https://vulners.com/api/v3/burp/{path}/";
     private BurpExtender burpExtender;
+    private final BasicCookieStore cookieStore;
     private final IBurpExtenderCallbacks callbacks;
     private final IExtensionHelpers helpers;
     private final TabComponent tabComponent;
@@ -40,7 +41,11 @@ public class VulnersService {
         this.rateLimiter = RateLimiter.create(tabComponent.getTbxReqLimitValue());
 
         Unirest.setDefaultHeader("user-agent", "vulners-burpscanner-v-1.0-DEMO");
-        Unirest.setAsyncHttpClient(HttpClient.createSSLClient());
+
+        this.cookieStore = new BasicCookieStore();
+        Unirest.setAsyncHttpClient(org.apache.http.impl.nio.client.HttpAsyncClients.custom()
+                .setDefaultCookieStore(cookieStore)
+                .build());
     }
 
 
@@ -125,6 +130,7 @@ public class VulnersService {
         Unirest.get(BURP_API_URL)
                 .routeParam("path", "path")
                 .queryString("path", path)
+                .header("Cookie", cookieStore.toString())
                 .asJsonAsync(new VulnersRestCallback(callbacks) {
 
                     @Override
@@ -161,6 +167,7 @@ public class VulnersService {
     public void loadRules() {
         Unirest.get(BURP_API_URL)
                 .routeParam("path", "rules")
+                .header("Cookie", cookieStore.toString())
                 .asJsonAsync(new VulnersRestCallback(callbacks) {
 
                     @Override
