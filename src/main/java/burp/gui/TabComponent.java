@@ -15,6 +15,8 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -118,8 +120,8 @@ public class TabComponent {
             }
         });
 
-        tbxProxyHost.addActionListener(getProxyChangeListener());
-        tbxProxyPort.addActionListener(getProxyChangeListener());
+        tbxProxyHost.getDocument().addDocumentListener(getProxyTextChangeListener());
+        tbxProxyPort.getDocument().addDocumentListener(getProxyTextChangeListener());
         cbxProxyEnabled.addActionListener(getProxyChangeListener());
     }
 
@@ -127,10 +129,31 @@ public class TabComponent {
         return new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 boolean proxyEnabled = cbxProxyEnabled.isSelected();
-                VulnersService.setProxy(
+                VulnersService.buildHttpClient(
                         proxyEnabled ? tbxProxyHost.getText() : "",
                         proxyEnabled ? tbxProxyPort.getText() : ""
                 );
+            }
+        };
+    }
+
+    private DocumentListener getProxyTextChangeListener() {
+        return new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                changedUpdate(e);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                changedUpdate(e);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                if (cbxProxyEnabled.isSelected()) {
+                    VulnersService.buildHttpClient(tbxProxyHost.getText(), tbxProxyPort.getText());
+                }
             }
         };
     }
@@ -170,14 +193,6 @@ public class TabComponent {
 
     public RulesTable getRulesTable() {
         return rulesTable;
-    }
-
-    public Double getTbxReqLimitValue() {
-        try {
-            return Double.valueOf(tbxReqLimit.getText());
-        } catch (Exception e) {
-            return 4.0; // Magic number of rate limits
-        }
     }
 
     /**
@@ -268,55 +283,57 @@ public class TabComponent {
         btnTblPathClear.setText("Clear");
         panel3.add(btnTblPathClear, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel4 = new JPanel();
-        panel4.setLayout(new GridLayoutManager(9, 3, new Insets(0, 0, 0, 0), -1, -1));
+        panel4.setLayout(new GridLayoutManager(8, 3, new Insets(0, 0, 0, 0), -1, -1));
         tabbedPane1.addTab("Options", panel4);
-        tbxReqLimit = new JTextField();
-        tbxReqLimit.setText("4");
-        panel4.add(tbxReqLimit, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final JLabel label8 = new JLabel();
-        label8.setText("Request per second");
-        panel4.add(label8, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label9 = new JLabel();
-        label9.setFont(new Font(label9.getFont().getName(), Font.BOLD, label9.getFont().getSize()));
-        label9.setText("Scan options");
-        panel4.add(label9, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        label8.setFont(new Font(label8.getFont().getName(), Font.BOLD, label8.getFont().getSize()));
+        label8.setText("Scan options");
+        panel4.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbxPathSearch = new JCheckBox();
         cbxPathSearch.setEnabled(true);
         cbxPathSearch.setSelected(false);
         cbxPathSearch.setText("");
         panel4.add(cbxPathSearch, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
+        final JLabel label9 = new JLabel();
+        label9.setText("Use scan by locations paths (Experimental)");
+        panel4.add(label9, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label10 = new JLabel();
-        label10.setText("Use scan by locations paths (Experimental)");
-        panel4.add(label10, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        label10.setEnabled(true);
+        label10.setFont(new Font(label10.getFont().getName(), Font.BOLD, label10.getFont().getSize()));
+        label10.setText("ProxyOptions");
+        panel4.add(label10, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label11 = new JLabel();
-        label11.setFont(new Font(label11.getFont().getName(), Font.BOLD, label11.getFont().getSize()));
-        label11.setText("ProxyOptions");
-        panel4.add(label11, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label12 = new JLabel();
-        label12.setText("Host");
-        panel4.add(label12, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        label11.setEnabled(true);
+        label11.setText("Host");
+        panel4.add(label11, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer();
-        panel4.add(spacer3, new GridConstraints(8, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel4.add(spacer3, new GridConstraints(7, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         tbxProxyHost = new JTextField();
+        tbxProxyHost.setEnabled(true);
         tbxProxyHost.setText("127.0.0.1");
-        panel4.add(tbxProxyHost, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        panel4.add(tbxProxyHost, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
         final Spacer spacer4 = new Spacer();
-        panel4.add(spacer4, new GridConstraints(6, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
-        final JLabel label13 = new JLabel();
-        label13.setText("Port");
-        panel4.add(label13, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel4.add(spacer4, new GridConstraints(5, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        final JLabel label12 = new JLabel();
+        label12.setEnabled(true);
+        label12.setText("Port");
+        panel4.add(label12, new GridConstraints(6, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         tbxProxyPort = new JTextField();
+        tbxProxyPort.setEnabled(true);
         tbxProxyPort.setText("8888");
-        panel4.add(tbxProxyPort, new GridConstraints(7, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
-        final JLabel label14 = new JLabel();
-        label14.setText("Proxy enabled");
-        panel4.add(label14, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel4.add(tbxProxyPort, new GridConstraints(6, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(150, -1), null, 0, false));
+        final JLabel label13 = new JLabel();
+        label13.setEnabled(true);
+        label13.setText("Proxy enabled");
+        panel4.add(label13, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbxProxyEnabled = new JCheckBox();
+        cbxProxyEnabled.setEnabled(true);
+        cbxProxyEnabled.setSelected(false);
         cbxProxyEnabled.setText("");
-        panel4.add(cbxProxyEnabled, new GridConstraints(5, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JLabel label15 = new JLabel();
-        label15.setText("Scope Only");
-        panel4.add(label15, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel4.add(cbxProxyEnabled, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label14 = new JLabel();
+        label14.setText("Scope Only");
+        panel4.add(label14, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbxPathScanInScope = new JCheckBox();
         cbxPathScanInScope.setEnabled(true);
         cbxPathScanInScope.setSelected(true);

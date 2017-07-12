@@ -13,6 +13,7 @@ import com.mashape.unirest.http.Unirest;
 import com.mashape.unirest.request.HttpRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.impl.client.BasicCookieStore;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
 import org.json.JSONObject;
 
 import javax.swing.table.DefaultTableModel;
@@ -24,7 +25,6 @@ public class VulnersService {
 
     private static String BURP_API_URL = "https://vulners.com/api/v3/burp/{path}/";
     private BurpExtender burpExtender;
-    private final BasicCookieStore cookieStore;
     private final IBurpExtenderCallbacks callbacks;
     private final IExtensionHelpers helpers;
     private final TabComponent tabComponent;
@@ -38,14 +38,10 @@ public class VulnersService {
         this.helpers = helpers;
         this.domains = domains;
         this.tabComponent = tabComponent;
-        this.rateLimiter = RateLimiter.create(tabComponent.getTbxReqLimitValue());
+        this.rateLimiter = RateLimiter.create(4.0);  // Count of max RPS
 
         Unirest.setDefaultHeader("user-agent", "vulners-burpscanner-v-1.0-DEMO");
-
-        this.cookieStore = new BasicCookieStore();
-        Unirest.setAsyncHttpClient(org.apache.http.impl.nio.client.HttpAsyncClients.custom()
-                .setDefaultCookieStore(cookieStore)
-                .build());
+        Unirest.setAsyncHttpClient(HttpClient.createSSLClient());
     }
 
 
@@ -130,7 +126,6 @@ public class VulnersService {
         Unirest.get(BURP_API_URL)
                 .routeParam("path", "path")
                 .queryString("path", path)
-                .header("Cookie", cookieStore.toString())
                 .asJsonAsync(new VulnersRestCallback(callbacks) {
 
                     @Override
@@ -167,7 +162,6 @@ public class VulnersService {
     public void loadRules() {
         Unirest.get(BURP_API_URL)
                 .routeParam("path", "rules")
-                .header("Cookie", cookieStore.toString())
                 .asJsonAsync(new VulnersRestCallback(callbacks) {
 
                     @Override
@@ -204,15 +198,15 @@ public class VulnersService {
                 });
     }
 
-    public static void setProxy(String host, String port) {
+    public static void buildHttpClient(String host, String port) {
         try {
             if ("".equals(host) && "".equals(port)) {
-                Unirest.setProxy(null);
+                Unirest.setAsyncHttpClient(null);
             } else {
-                Unirest.setProxy(new HttpHost(host, Integer.valueOf(port)));
+                Unirest.setAsyncHttpClient(HttpClient.createSSLClient(new HttpHost(host, Integer.valueOf(port))));
             }
         } catch (Exception e) {
-            System.out.println("[Vulners] can't set proxy");
+            System.out.println("[Vulners] can't build HTTP client");
         }
     }
 }
