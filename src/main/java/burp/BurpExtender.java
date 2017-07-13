@@ -20,10 +20,10 @@ public class BurpExtender extends PassiveScan {
 
     @Override
     protected void initPassiveScan() {
-        extensionName = "Vulners Scanner";
+        extensionName = "Software Vulnerability Scanner";
         settingsNamespace = "VULNERS_";
 
-        BurpSuiteTab mTab = new BurpSuiteTab("Vulners Scanner", callbacks);
+        BurpSuiteTab mTab = new BurpSuiteTab("Software Vulnerability Scanner", callbacks);
         this.tabComponent = new TabComponent(this, callbacks, domains);
 
         mTab.addComponent(tabComponent.getRootPanel());

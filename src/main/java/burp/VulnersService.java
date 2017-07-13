@@ -40,7 +40,7 @@ public class VulnersService {
         this.tabComponent = tabComponent;
         this.rateLimiter = RateLimiter.create(4.0);  // Count of max RPS
 
-        Unirest.setDefaultHeader("user-agent", "vulners-burpscanner-v-1.0-DEMO");
+        Unirest.setDefaultHeader("user-agent", "vulners-burpscanner-v-1.1");
         Unirest.setAsyncHttpClient(HttpClient.createSSLClient());
     }
 
