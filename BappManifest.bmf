@@ -1,9 +1,9 @@
-Uuid: 5c99cf1016306c7d0c8770a8a53ccdf6
+Uuid: c9fb79369b56407792a7104e3c4352fb
 ExtensionType: 1
 Name: Software Vulnerability Scanner
-RepoName: burp-vulners-scanner
-ScreenVersion: 1.0.0
-SerialVersion: 1
+RepoName: software-vulnerability-scanner
+ScreenVersion: 1.1
+SerialVersion: 4
 MinPlatformVersion: 0
 ProOnly: True
 Author: Vulners.com
