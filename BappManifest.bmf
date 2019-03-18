@@ -2,11 +2,11 @@ Uuid: c9fb79369b56407792a7104e3c4352fb
 ExtensionType: 1
 Name: Software Vulnerability Scanner
 RepoName: software-vulnerability-scanner
-ScreenVersion: 1.1
-SerialVersion: 4
+ScreenVersion: 1.2
+SerialVersion: 6
 MinPlatformVersion: 0
 ProOnly: True
 Author: Vulners.com
 ShortDescription: Software vulnerability scanner based on Vulners.com audit API
-EntryPoint: target/burp-vulners-scanner-1.1.jar
+EntryPoint: target/burp-vulners-scanner-1.2.jar
 BuildCommand: mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B
