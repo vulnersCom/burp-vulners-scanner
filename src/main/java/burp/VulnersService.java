@@ -8,11 +8,7 @@ import burp.models.Vulnerability;
 import com.codemagi.burp.MatchRule;
 import com.codemagi.burp.ScanIssueConfidence;
 import com.codemagi.burp.ScanIssueSeverity;
-import com.codemagi.burp.ScannerMatch;
 import com.google.common.util.concurrent.RateLimiter;
-import com.mashape.unirest.http.Unirest;
-import com.mashape.unirest.request.HttpRequest;
-import org.apache.http.HttpHost;
 import org.json.JSONObject;
 
 import javax.swing.table.DefaultTableModel;
@@ -20,9 +16,10 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import static burp.VulnersServiceRequest.vulnersRestServiceGetRequest;
+
 public class VulnersService {
 
-    private static String BURP_API_URL = "https://vulners.com/api/v3/burp/{path}/";
     private BurpExtender burpExtender;
     private final IBurpExtenderCallbacks callbacks;
     private final IExtensionHelpers helpers;
@@ -38,11 +35,7 @@ public class VulnersService {
         this.domains = domains;
         this.tabComponent = tabComponent;
         this.rateLimiter = RateLimiter.create(tabComponent.getTbxReqLimitValue());
-
-        Unirest.setDefaultHeader("user-agent", "vulners-burpscanner-v-1.0-DEMO");
-        Unirest.setAsyncHttpClient(HttpClient.createSSLClient());
     }
-
 
     /**
      * Check found software for vulnerabilities using https://vulnes.com/api/v3/burp/software/
@@ -58,15 +51,15 @@ public class VulnersService {
         // TODO make non block MQ
         rateLimiter.acquire();
 
-        final HttpRequest request = Unirest.get(BURP_API_URL)
-                .routeParam("path", "software")
+        VulnersServiceRequest request = vulnersRestServiceGetRequest(callbacks)
+                .pathParameter("software")
                 .queryString("software", software.getAlias())
                 .queryString("version", software.getVersion())
                 .queryString("type", software.getMatchType());
 
-        callbacks.printOutput("[Vulners] start check for domain " + domainName + " for software " + software.getName() + "/" + software.getVersion() + " : " + request.getUrl());
+        callbacks.printOutput("[Vulners] start check for domain " + domainName + " for software " + software.getName() + "/" + software.getVersion() + " : " + request.url());
 
-        request.asJsonAsync(new VulnersRestCallback(callbacks) {
+        request.send(new VulnersRestCallback(callbacks) {
 
             @Override
             public void onScannerSuccess(Set<Vulnerability> vulnerabilities) {
@@ -95,7 +88,7 @@ public class VulnersService {
             }
 
             @Override
-            public void onFail(JSONObject error) {
+            public void onFail(String error) {
                 // update gui component
                 tabComponent.getSoftwareTable().refreshTable(domains, tabComponent.getCbxSoftwareShowVuln().isSelected());
 
@@ -122,10 +115,10 @@ public class VulnersService {
         // TODO make non block MQ
         rateLimiter.acquire();
 
-        Unirest.get(BURP_API_URL)
-                .routeParam("path", "path")
+        vulnersRestServiceGetRequest(callbacks)
+                .pathParameter("path")
                 .queryString("path", path)
-                .asJsonAsync(new VulnersRestCallback(callbacks) {
+                .send(new VulnersRestCallback(callbacks) {
 
                     @Override
                     public void onScannerSuccess(Set<Vulnerability> vulnerabilities) {
@@ -159,10 +152,9 @@ public class VulnersService {
      * Check out rules for matching
      */
     public void loadRules() {
-        Unirest.get(BURP_API_URL)
-                .routeParam("path", "rules")
-                .asJsonAsync(new VulnersRestCallback(callbacks) {
-
+        vulnersRestServiceGetRequest(callbacks)
+                .pathParameter("rules")
+                .send(new VulnersRestCallback(callbacks) {
                     @Override
                     public void onSuccess(JSONObject data) {
                         JSONObject rules = data.getJSONObject("rules");
@@ -178,7 +170,6 @@ public class VulnersService {
 
                             try {
                                 Pattern pattern = Pattern.compile(v.getString("regex"));
-                                System.out.println("[NEW] " + pattern);
 
                                 burpExtender.getMatchRules().put(key, new HashMap<String, String>() {{
                                     put("regex", v.getString("regex"));
@@ -192,20 +183,7 @@ public class VulnersService {
                                 burpExtender.printStackTrace(pse);
                             }
                         }
-
                     }
                 });
-    }
-
-    public static void setProxy(String host, String port) {
-        try {
-            if ("".equals(host) && "".equals(port)) {
-                Unirest.setProxy(null);
-            } else {
-                Unirest.setProxy(new HttpHost(host, Integer.valueOf(port)));
-            }
-        } catch (Exception e) {
-            System.out.println("[Vulners] can't set proxy");
-        }
     }
 }
