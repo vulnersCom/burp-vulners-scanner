@@ -8,7 +8,12 @@ public class PathsTable extends JTable {
     private final DefaultTableModel defaultModel;
 
     public PathsTable() {
-        DefaultTableModel model = new DefaultTableModel();
+        DefaultTableModel model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
         model.addColumn("Domain");
         model.addColumn("path");
         model.addColumn("CVSS Score");

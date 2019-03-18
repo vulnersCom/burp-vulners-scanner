@@ -13,7 +13,13 @@ public class SoftwareTable extends JTable {
     private final DefaultTableModel defaultModel;
 
     public SoftwareTable() {
-        DefaultTableModel model = new DefaultTableModel();
+        DefaultTableModel model = new DefaultTableModel() {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        };
+
         model.addColumn("Domain");
         model.addColumn("Name");
         model.addColumn("Version");
