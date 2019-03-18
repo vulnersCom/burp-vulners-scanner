@@ -5,13 +5,8 @@ import burp.models.Vulnerability;
 import com.codemagi.burp.ScanIssueConfidence;
 import com.codemagi.burp.ScanIssueSeverity;
 import com.google.common.base.Function;
-import com.google.common.base.Predicates;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Ordering;
-import org.jtwig.environment.DefaultEnvironmentConfiguration;
-import org.jtwig.environment.Environment;
-import org.jtwig.environment.EnvironmentConfiguration;
-import org.jtwig.environment.EnvironmentFactory;
 
 import java.net.URL;
 import java.util.Collection;
@@ -23,8 +18,8 @@ public class SoftwareIssue implements IScanIssue {
     private final IExtensionHelpers helpers;
     private final IBurpExtenderCallbacks callbacks;
     private final List<int[]> startStop;
-    private final Software software;
-    private final Environment environment;
+
+    private Software software;
 
     SoftwareIssue(IHttpRequestResponse baseRequestResponse, IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<int[]> startStop, Software software) {
         this.baseRequestResponse = baseRequestResponse;
@@ -33,11 +28,6 @@ public class SoftwareIssue implements IScanIssue {
         this.startStop = startStop;
 
         this.software = software;
-
-        // Environment
-        EnvironmentConfiguration configuration = new DefaultEnvironmentConfiguration();
-        EnvironmentFactory environmentFactory = new EnvironmentFactory();
-        this.environment = environmentFactory.create(configuration);
     }
 
     @Override
@@ -132,17 +122,21 @@ public class SoftwareIssue implements IScanIssue {
 
     @Override
     public String getRemediationDetail() {
-        return null;
+        return "";
     }
 
     @Override
     public String getIssueBackground() {
-        return null;
+        return "";
     }
 
     @Override
     public String getRemediationBackground() {
-        return null;
+        return "";
+    }
+
+    public void setSoftware(Software software) {
+        this.software = software;
     }
 
     private boolean hasVulnerabilities() {

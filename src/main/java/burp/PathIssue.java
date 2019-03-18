@@ -1,6 +1,5 @@
 package burp;
 
-import burp.models.Software;
 import burp.models.Vulnerability;
 import com.codemagi.burp.ScanIssueConfidence;
 import com.codemagi.burp.ScanIssueSeverity;
@@ -10,7 +9,6 @@ import com.google.common.collect.Ordering;
 
 import java.net.URL;
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 public class PathIssue implements IScanIssue {
@@ -22,7 +20,7 @@ public class PathIssue implements IScanIssue {
     private final String path;
     private final Set<Vulnerability> vulnerabilities;
 
-    public PathIssue(IHttpRequestResponse baseRequestResponse, IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, String path, Set<Vulnerability> vulnerabilities) {
+    PathIssue(IHttpRequestResponse baseRequestResponse, IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, String path, Set<Vulnerability> vulnerabilities) {
         this.baseRequestResponse = baseRequestResponse;
         this.helpers = helpers;
         this.callbacks = callbacks;

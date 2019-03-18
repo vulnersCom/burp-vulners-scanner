@@ -1,7 +1,5 @@
 package burp.models;
 
-import org.json.JSONObject;
-
 import java.util.Set;
 
 public class Path {

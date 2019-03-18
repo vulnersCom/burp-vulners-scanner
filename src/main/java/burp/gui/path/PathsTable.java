@@ -21,6 +21,7 @@ public class PathsTable extends JTable {
 
         setModel(model);
         this.defaultModel = model;
+        this.setAutoCreateRowSorter(true);
     }
 
     public DefaultTableModel getDefaultModel() {

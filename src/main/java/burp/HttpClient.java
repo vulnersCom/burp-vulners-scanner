@@ -1,54 +1,68 @@
 package burp;
 
-import com.mashape.unirest.http.Unirest;
-import org.apache.http.HttpHost;
-import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
-import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
-import org.apache.http.conn.ssl.TrustStrategy;
-import org.apache.http.impl.client.BasicCookieStore;
-import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
-import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
-import org.apache.http.impl.nio.client.HttpAsyncClients;
-import org.apache.http.ssl.SSLContexts;
+import org.json.JSONObject;
 
-import javax.net.ssl.SSLContext;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
-class HttpClient {
+public class HttpClient {
 
-    public static CloseableHttpAsyncClient createSSLClient() {
-        return createSSLClient(null);
+    private static String VULNERS_API_HOST = "vulners.com";
+    private static String VULNERS_API_PATH = "/api/v3/burp/";
+
+    private final IBurpExtenderCallbacks callbacks;
+    private final IExtensionHelpers helpers;
+    private final BurpExtender burpExtender;
+
+    HttpClient(IBurpExtenderCallbacks callbacks, IExtensionHelpers helpers, BurpExtender burpExtender) {
+        this.burpExtender = burpExtender;
+        this.callbacks = callbacks;
+        this.helpers = helpers;
     }
 
-    public static CloseableHttpAsyncClient createSSLClient(HttpHost proxy) {
-        TrustStrategy acceptingTrustStrategy = new TrustStrategy() {
+    public JSONObject get(String action, Map<String, String> params) {
+        List<String> headers = new ArrayList<>();
+        headers.add("POST " + VULNERS_API_PATH + action + "/ HTTP/1.1");
+        headers.add("Host: " + VULNERS_API_HOST);
+        headers.add("User-Agent: vulners-burpscanner-v-1.2");
+        headers.add("Content-type: application/json");
 
-            @Override
-            public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-                return true;
-            }
-        };
+        JSONObject jsonBody = new JSONObject();
 
-        try {
-            SSLContext sslContext = SSLContexts.custom()
-                    .loadTrustMaterial(null, acceptingTrustStrategy)
-                    .build();
-
-            HttpAsyncClientBuilder client = HttpAsyncClients.custom()
-                    .setDefaultCookieStore(new BasicCookieStore())
-                    .setSSLContext(sslContext)
-                    .setSSLHostnameVerifier(SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-
-            if (proxy !=null) {
-                client.setProxy(proxy);
-            }
-
-            return client.build();
-        } catch (Exception e) {
-            System.out.println("Could not create SSLContext");
-            return null;
+        if (burpExtender.getApiKey() != null) {
+            jsonBody = jsonBody.put("apiKey", burpExtender.getApiKey());
         }
 
+        for (Map.Entry<String, String> p: params.entrySet()) {
+            jsonBody = jsonBody.put(p.getKey(), p.getValue());
+        }
+
+        byte[] request = helpers.buildHttpMessage(headers, helpers.stringToBytes(jsonBody.toString()));
+        byte[] response = callbacks.makeHttpRequest(VULNERS_API_HOST, 443, true, request);
+        return parseResponse(response);
     }
+
+    private JSONObject parseResponse(byte[] response) {
+        String responseString = helpers.bytesToString(response);
+        IResponseInfo iResponseInfo = helpers.analyzeResponse(response);
+        String jsonString = responseString.substring(iResponseInfo.getBodyOffset());
+
+        JSONObject object = new JSONObject(jsonString);
+
+        try {
+            if (object.getString("result").equals("OK")) {
+                return object.getJSONObject("data");
+            } else {
+                callbacks.printOutput("[DEBUG] not OK");
+                callbacks.printOutput(jsonString);
+                return object;
+            }
+        } catch (Exception e) {
+            callbacks.printError("[ERROR]");
+            callbacks.printError(jsonString);
+            return object;
+        }
+    }
+
 }

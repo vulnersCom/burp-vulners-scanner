@@ -2,4 +2,4 @@
 /.idea
 /burp-vulners-scanner.iml
 /target/
-!/target/burp-vulners-scanner-1.1.jar
+!/target/burp-vulners-scanner-1.2.jar
