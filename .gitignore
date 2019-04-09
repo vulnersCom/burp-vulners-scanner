@@ -1,5 +1,5 @@
  .DS_Store
-.idea/
-*.iml
-out/
-target/
+/.idea
+/burp-vulners-scanner.iml
+/target/
+!/target/burp-vulners-scanner-1.2.jar

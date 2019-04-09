@@ -4,9 +4,11 @@ import burp.models.Vulnerability;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Ordering;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -43,5 +45,22 @@ public class Utils {
                     }
                 }
         );
+    }
+
+
+    public static Set<Vulnerability> getVulnerabilities(JSONObject data) {
+        Set<Vulnerability> vulnerabilities = new HashSet<>();
+
+        if (!data.has("search")) {
+            return vulnerabilities;
+        }
+
+        JSONArray bulletins = data.getJSONArray("search");
+        for (Object bulletin : bulletins) {
+            vulnerabilities.add(
+                    new Vulnerability(((JSONObject) bulletin).getJSONObject("_source"))
+            );
+        }
+        return vulnerabilities;
     }
 }

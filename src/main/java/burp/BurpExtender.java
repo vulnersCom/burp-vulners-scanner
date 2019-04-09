@@ -7,12 +7,17 @@ import com.codemagi.burp.PassiveScan;
 import com.codemagi.burp.ScannerMatch;
 import com.monikamorrow.burp.BurpSuiteTab;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.regex.Pattern;
 
 
 public class BurpExtender extends PassiveScan {
 
+    public static String SETTING_API_KEY_NAME = "SETTING_API_KEY_NAME";
+
+    private String apiKey = "";
     private TabComponent tabComponent;
     private VulnersService vulnersService;
     private Map<String, Domain> domains = new HashMap<>();
@@ -28,8 +33,15 @@ public class BurpExtender extends PassiveScan {
 
         mTab.addComponent(tabComponent.getRootPanel());
 
+        apiKey = callbacks.loadExtensionSetting(SETTING_API_KEY_NAME);
+        tabComponent.setAPIKey(apiKey);
+
         vulnersService = new VulnersService(this, callbacks, helpers, domains, tabComponent);
-        vulnersService.loadRules();
+        try {
+            vulnersService.loadRules();
+        } catch (IOException e) {
+            callbacks.printError("[Vulners]" + e.getMessage());
+        }
     }
 
     @Override
@@ -69,8 +81,6 @@ public class BurpExtender extends PassiveScan {
 
         String domainName = helpers.analyzeRequest(baseRequestResponse).getUrl().getHost();
         List<int[]> startStop = new ArrayList<>(1);
-        callbacks.printOutput("[Vulners] Processing issues for: " + domainName);
-
 
         //get the existing matches for this domain
         Domain domain = domains.get(domainName);
@@ -79,10 +89,22 @@ public class BurpExtender extends PassiveScan {
         }
 
         Collections.sort(matches); //matches must be in order
+        ScannerMatch lastMatch = null;
         for (ScannerMatch match : matches) {
+
+            // do not continue if software wal already found before
             if (domain.getSoftware().get(match.getType() + match.getMatchGroup()) != null) {
                 continue;
             }
+
+            // Ignore matches that overlapped previous positions. Usually it's the similar rule match
+            if (lastMatch !=null && (lastMatch.getStart() >= match.getStart() || lastMatch.getEnd() >= match.getEnd())) {
+                callbacks.printError("[Vulners] Ignore overlapped rule " + domainName + " new issue " + match.getFullMatch());
+                continue;
+            }
+            lastMatch = match;
+
+            callbacks.printOutput("[Vulners] Processing domain " + domainName + " new issue " + match.getFullMatch());
 
             Software software = new Software(
                     match.getType() + match.getMatchGroup(),
@@ -117,5 +139,22 @@ public class BurpExtender extends PassiveScan {
 
     Map<String, Map<String, String>> getMatchRules() {
         return matchRules;
+    }
+
+    public String getApiKey() {
+        return apiKey;
+    }
+
+    public void setApiKey(String apiKey) {
+        apiKey = apiKey.trim();
+        Pattern pattern = Pattern.compile("[A-Z0-9]{0,128}");
+
+        if (pattern.matcher(apiKey).matches()) {
+            callbacks.printOutput("[Vulners] Set API key " + apiKey);
+            callbacks.saveExtensionSetting(SETTING_API_KEY_NAME, apiKey);
+            this.apiKey = apiKey;
+        } else {
+            callbacks.printError("[Vulners] Wrong api key provided, should match /[A-Z0-9]{64}/ " + apiKey);
+        }
     }
 }

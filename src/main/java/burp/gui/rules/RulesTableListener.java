@@ -1,7 +1,6 @@
 package burp.gui.rules;
 
 import burp.IBurpExtenderCallbacks;
-import burp.VulnersService;
 import com.codemagi.burp.MatchRule;
 import com.codemagi.burp.PassiveScan;
 import com.codemagi.burp.ScanIssueConfidence;
@@ -12,10 +11,7 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionEvent;
-import java.io.*;
-import java.net.URL;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 
 public class RulesTableListener implements TableModelListener {
@@ -51,7 +47,7 @@ public class RulesTableListener implements TableModelListener {
 
         switch (column) {
             case 0:
-                mCallbacks.printOutput("new pattern: " + (String)model.getValueAt(row, column));
+                mCallbacks.printOutput("[Vulners] new pattern: " + (String)model.getValueAt(row, column));
                 rule.setPattern(Pattern.compile((String)model.getValueAt(row, column)));
                 break;
             case 1:
