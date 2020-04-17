@@ -204,7 +204,7 @@ public class TabComponent {
         label5.setText("API Token   ");
         panel3.add(label5, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
-        label6.setText("Provide you persanal API token to improve scan speed while using vulners.com api");
+        label6.setText("Provide your personal API token to improve scan speed while using vulners.com api");
         panel3.add(label6, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnApi = new JButton();
         btnApi.setText("Add");
