@@ -8,8 +8,8 @@ import java.util.Map;
 
 public class HttpClient {
 
-    private static String VULNERS_API_HOST = "vulners.com";
-    private static String VULNERS_API_PATH = "/api/v3/burp/";
+    private static final String VULNERS_API_HOST = "vulners.com";
+    private static final String VULNERS_API_PATH = "/api/v3/burp/";
 
     private final IBurpExtenderCallbacks callbacks;
     private final IExtensionHelpers helpers;
@@ -21,21 +21,31 @@ public class HttpClient {
         this.helpers = helpers;
     }
 
+    public JSONObject post(String action, Map<String, String> params) {
+        return request("POST", action, params);
+    }
+
     public JSONObject get(String action, Map<String, String> params) {
+        return request("GET", action, params);
+    }
+
+    public JSONObject request(String method, String action, Map<String, String> params) {
         List<String> headers = new ArrayList<>();
-        headers.add("POST " + VULNERS_API_PATH + action + "/ HTTP/1.1");
+        headers.add( method + " " + VULNERS_API_PATH + action + "/ HTTP/1.1");
         headers.add("Host: " + VULNERS_API_HOST);
-        headers.add("User-Agent: vulners-burpscanner-v-1.2");
+        headers.add("User-Agent: vulners-burpscanner-v-1.3");
         headers.add("Content-type: application/json");
 
         JSONObject jsonBody = new JSONObject();
 
-        if (burpExtender.getApiKey() != null) {
-            jsonBody = jsonBody.put("apiKey", burpExtender.getApiKey());
-        }
+        if (!method.equals("GET")) {
+            if (burpExtender.getApiKey() != null) {
+                jsonBody = jsonBody.put("apiKey", burpExtender.getApiKey());
+            }
 
-        for (Map.Entry<String, String> p: params.entrySet()) {
-            jsonBody = jsonBody.put(p.getKey(), p.getValue());
+            for (Map.Entry<String, String> p: params.entrySet()) {
+                jsonBody = jsonBody.put(p.getKey(), p.getValue());
+            }
         }
 
         byte[] request = helpers.buildHttpMessage(headers, helpers.stringToBytes(jsonBody.toString()));

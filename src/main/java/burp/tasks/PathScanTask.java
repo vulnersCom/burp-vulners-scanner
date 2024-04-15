@@ -25,7 +25,7 @@ public class PathScanTask extends Thread {
     @Override
     public void run() {
 
-        JSONObject data = httpClient.get("path", new HashMap<String, String>() {{
+        JSONObject data = httpClient.post("path", new HashMap<String, String>() {{
             put("path", vulnersRequest.getPath());
         }});
 

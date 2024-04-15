@@ -15,7 +15,7 @@ public class PathsTable extends JTable {
             }
         };
         model.addColumn("Domain");
-        model.addColumn("path");
+        model.addColumn("Path");
         model.addColumn("CVSS Score");
         model.addColumn("Vulnerabilities");
 

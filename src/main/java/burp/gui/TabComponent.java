@@ -7,23 +7,18 @@ import burp.gui.rules.RulesTable;
 import burp.gui.rules.RulesTableListener;
 import burp.gui.software.SoftwareTable;
 import burp.models.Domain;
-import burp.models.Software;
-import burp.models.Vulnerability;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class TabComponent {
     private JPanel rootPanel;
@@ -148,6 +143,7 @@ public class TabComponent {
     }
 
     public void setAPIKey(String apiKey) {
+        System.out.println("Setting API key: " + apiKey);
         if (apiKey != null) {
             txtApi.setText(apiKey);
         }
