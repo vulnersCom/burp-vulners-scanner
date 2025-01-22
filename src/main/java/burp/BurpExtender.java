@@ -70,6 +70,15 @@ public class BurpExtender extends PassiveScan {
             vulnersService.checkURLPath(domainName, path, baseRequestResponse);
         }
 
+        // Identify response headers
+        IResponseInfo responseInfo = helpers.analyzeResponse(baseRequestResponse.getResponse());
+        List<String> headers = responseInfo.getHeaders();
+        for (String header : headers) {
+            if (header.toLowerCase().startsWith("x-powered-by") || header.toLowerCase().startsWith("server")) {
+                vulnersService.checkResponseHeader(domainName, header, baseRequestResponse);
+            }
+        }
+
         return issues;
     }
 

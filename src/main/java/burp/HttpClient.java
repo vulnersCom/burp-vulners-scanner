@@ -75,4 +75,7 @@ public class HttpClient {
         }
     }
 
+    public JSONObject checkResponseHeader(String header) {
+        return post("headers", Map.of("header", header));
+    }
 }

@@ -86,6 +86,9 @@ public class VulnersService {
             );
             callbacks.addScanIssue(vulnersRequest.getSoftwareIssue());
         }).run();
+
+        // Call the new method to check response headers for vulnerabilities
+        checkResponseHeader(domainName, software.getName(), baseRequestResponse);
     }
 
     /**
@@ -93,6 +96,43 @@ public class VulnersService {
      */
     void checkURLPath(final String domainName, final String path, final IHttpRequestResponse baseRequestResponse) {
         VulnersRequest request = new VulnersRequest(domainName, path, baseRequestResponse);
+
+        new PathScanTask(request, httpClient, vulnersRequest -> {
+            Set<Vulnerability> vulnerabilities = vulnersRequest.getVulnerabilities();
+
+            if (vulnerabilities.isEmpty()) {
+                return;
+            }
+
+            // update cache
+            domains.get(vulnersRequest.getDomain())
+                    .getPaths()
+                    .put(vulnersRequest.getPath(), vulnerabilities);
+
+            // update gui component
+            tabComponent.getPathsTable().getDefaultModel().addRow(new Object[]{
+                    vulnersRequest.getDomain(),
+                    vulnersRequest.getPath(),
+                    Utils.getMaxScore(vulnerabilities),
+                    Utils.getVulnersList(vulnerabilities)
+            });
+
+            // add Burp issue
+            callbacks.addScanIssue(new PathIssue(
+                    vulnersRequest.getBaseRequestResponse(),
+                    helpers,
+                    callbacks,
+                    vulnersRequest.getPath(),
+                    vulnerabilities
+            ));
+        }).run();
+    }
+
+    /**
+     * Check response headers for vulnerabilities using https://vulners.com/api/v3/burp/headers/
+     */
+    void checkResponseHeader(final String domainName, final String header, final IHttpRequestResponse baseRequestResponse) {
+        VulnersRequest request = new VulnersRequest(domainName, header, baseRequestResponse);
 
         new PathScanTask(request, httpClient, vulnersRequest -> {
             Set<Vulnerability> vulnerabilities = vulnersRequest.getVulnerabilities();
