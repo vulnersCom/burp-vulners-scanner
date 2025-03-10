@@ -7,14 +7,18 @@ import com.google.common.collect.Ordering;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by vankyver on 05/07/2017.
  */
 public class Utils {
+
+    private HttpClient httpClient;
+
+    public Utils(HttpClient client) {
+        this.httpClient = client;
+    }
 
     public static Double getMaxScore(Set<Vulnerability> vulnerabilities) {
         if (vulnerabilities.size() <= 0) {
@@ -48,18 +52,39 @@ public class Utils {
     }
 
 
-    public static Set<Vulnerability> getVulnerabilities(JSONObject data) {
+    public Set<Vulnerability> getVulnerabilities(JSONObject data) {
         Set<Vulnerability> vulnerabilities = new HashSet<>();
 
-        if (!data.has("search")) {
-            return vulnerabilities;
-        }
+        // Parse OLD Api
+        if (data.has("search")) {
+            JSONArray bulletins = data.getJSONArray("search");
+            for (Object bulletin : bulletins) {
+                vulnerabilities.add(
+                        new Vulnerability(((JSONObject) bulletin).getJSONObject("_source"))
+                );
+            }
+        } else {
+            // Use new API V4
+            if(!data.get("result").getClass().equals(JSONArray.class))
+                return vulnerabilities;
 
-        JSONArray bulletins = data.getJSONArray("search");
-        for (Object bulletin : bulletins) {
-            vulnerabilities.add(
-                    new Vulnerability(((JSONObject) bulletin).getJSONObject("_source"))
-            );
+            List<String> cves = new ArrayList<String>();
+            for (Object entry : data.getJSONArray("result") ) {
+
+                for (Object vuln: ((JSONObject) entry).getJSONArray("vulnerabilities")) {
+                    cves.add(((JSONObject) vuln).getString("id"));
+
+                }
+
+                JSONObject cveInfo = httpClient.requestSearchById(cves);
+
+                for(String cveName: cveInfo.keySet()) {
+                    JSONObject bulletin = cveInfo.getJSONObject(cveName);
+                    vulnerabilities.add(
+                            new Vulnerability(((JSONObject) bulletin))
+                    );
+                }
+            }
         }
         return vulnerabilities;
     }

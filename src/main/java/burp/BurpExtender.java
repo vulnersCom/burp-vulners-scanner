@@ -6,6 +6,7 @@ import burp.models.Software;
 import com.codemagi.burp.PassiveScan;
 import com.codemagi.burp.ScannerMatch;
 import com.monikamorrow.burp.BurpSuiteTab;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.URL;
@@ -47,6 +48,11 @@ public class BurpExtender extends PassiveScan {
     @Override
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse baseRequestResponse) {
         List<IScanIssue> issues = super.doPassiveScan(baseRequestResponse);
+
+        if (getApiKey() == null) {
+            callbacks.printError("[Vulners] doPassiveScan There must be an API key.");
+            return issues;
+        }
 
         URL url = helpers.analyzeRequest(baseRequestResponse).getUrl();
 
@@ -156,5 +162,9 @@ public class BurpExtender extends PassiveScan {
         } else {
             callbacks.printError("[Vulners] Wrong api key provided, should match /[A-Z0-9]{64}/ " + apiKey);
         }
+    }
+
+    public Boolean isUseApiV4() {
+        return tabComponent.getCbxApiVersionV4().isSelected();
     }
 }

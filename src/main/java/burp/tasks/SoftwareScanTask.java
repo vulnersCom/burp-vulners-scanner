@@ -16,11 +16,14 @@ public class SoftwareScanTask extends Thread {
     private HttpClient httpClient;
     private Consumer<VulnersRequest> callback;
     private VulnersRequest vulnersRequest;
+    private Utils utils;
 
     public SoftwareScanTask(VulnersRequest vulnersRequest, HttpClient httpClient, Consumer<VulnersRequest> callback) {
         this.httpClient = httpClient;
         this.vulnersRequest = vulnersRequest;
         this.callback = callback;
+
+        this.utils = new Utils(httpClient);
     }
 
     @Override
@@ -28,13 +31,13 @@ public class SoftwareScanTask extends Thread {
 
         Software software = vulnersRequest.getSoftware();
 
-        JSONObject data = httpClient.post("software", new HashMap<String, String>() {{
+        JSONObject data = httpClient.post("softwareapi", new HashMap<String, String>() {{
             put("software", software.getAlias());
             put("version", software.getVersion());
             put("type", software.getMatchType());
         }});
 
-        Set<Vulnerability> vulnerabilities = Utils.getVulnerabilities(data);
+        Set<Vulnerability> vulnerabilities = utils.getVulnerabilities(data);
 
         vulnersRequest.setVulnerabilities(vulnerabilities);
 

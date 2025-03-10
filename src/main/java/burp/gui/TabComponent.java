@@ -33,6 +33,7 @@ public class TabComponent {
     private JTable tblSoftware;
     private JTable tblPaths;
     private JCheckBox cbxPathSearch;
+    private JCheckBox cbxApiVersionV4;
     private JButton btnTblSoftwareClear;
     private JButton btnTblPathClear;
     private JCheckBox cbxSoftwareShowVuln;
@@ -128,6 +129,10 @@ public class TabComponent {
 
     public JCheckBox getCbxPathSearch() {
         return cbxPathSearch;
+    }
+
+    public JCheckBox getCbxApiVersionV4() {
+        return cbxApiVersionV4;
     }
 
     public JCheckBox getCbxSoftwareShowVuln() {
@@ -275,7 +280,7 @@ public class TabComponent {
         btnTblPathClear.setText("Clear");
         panel6.add(btnTblPathClear, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel7 = new JPanel();
-        panel7.setLayout(new GridLayoutManager(4, 2, new Insets(10, 0, 0, 0), -1, -1));
+        panel7.setLayout(new GridLayoutManager(5, 2, new Insets(10, 0, 0, 0), -1, -1));
         tabbedPane1.addTab("Options", panel7);
         final JLabel label10 = new JLabel();
         Font label10Font = this.$$$getFont$$$(null, Font.BOLD, -1, label10.getFont());
@@ -291,7 +296,7 @@ public class TabComponent {
         label11.setText("Use scan by locations paths");
         panel7.add(label11, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer();
-        panel7.add(spacer3, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel7.add(spacer3, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label12 = new JLabel();
         label12.setText("Scope Only");
         panel7.add(label12, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -300,6 +305,14 @@ public class TabComponent {
         cbxPathScanInScope.setSelected(true);
         cbxPathScanInScope.setText("");
         panel7.add(cbxPathScanInScope, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
+        final JLabel label13 = new JLabel();
+        label13.setText("Use API V4");
+        panel7.add(label13, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cbxApiVersionV4 = new JCheckBox();
+        cbxApiVersionV4.setEnabled(true);
+        cbxApiVersionV4.setSelected(true);
+        cbxApiVersionV4.setText("");
+        panel7.add(cbxApiVersionV4, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
     }
 
     /**

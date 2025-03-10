@@ -15,11 +15,14 @@ public class PathScanTask extends Thread {
     private HttpClient httpClient;
     private Consumer<VulnersRequest> callback;
     private VulnersRequest vulnersRequest;
+    private Utils utils;
 
     public PathScanTask(VulnersRequest vulnersRequest, HttpClient httpClient, Consumer<VulnersRequest> callback) {
         this.httpClient = httpClient;
         this.vulnersRequest = vulnersRequest;
         this.callback = callback;
+
+        this.utils = new Utils(httpClient);
     }
 
     @Override
@@ -29,7 +32,7 @@ public class PathScanTask extends Thread {
             put("path", vulnersRequest.getPath());
         }});
 
-        Set<Vulnerability> vulnerabilities = Utils.getVulnerabilities(data);
+        Set<Vulnerability> vulnerabilities = utils.getVulnerabilities(data);
 
         vulnersRequest.setVulnerabilities(vulnerabilities);
 
