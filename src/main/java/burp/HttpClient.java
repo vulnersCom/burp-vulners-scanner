@@ -70,6 +70,12 @@ public class HttpClient {
     }
 
     public JSONObject requestSearchById(List<String> cveID) {
+
+        if (!burpExtender.isSearchForExploits())
+        {
+            return new JSONObject();
+        }
+
         List<String> headers = new ArrayList<>();
         headers.add( "POST " + VULNERS_API_SEARCH_ID_PATH + "/ HTTP/1.1");
         headers.add("Host: " + VULNERS_API_HOST);
@@ -125,8 +131,6 @@ public class HttpClient {
         headers.add("Content-type: application/json");
 
         JSONObject jsonBody = new JSONObject();
-
-
         /*
         * {
 "software":[
@@ -135,15 +139,43 @@ public class HttpClient {
 }],
 "apiKey":""}
         * */
-
-//        if (!method.equals("GET")) {
         if (burpExtender.getApiKey() == null) {
             callbacks.printError("[Vulners] requestV4 There must be an API key.");
             return new JSONObject();
         }
 
+        JSONArray fields = new JSONArray("[\"title\"," +
+                "\"type\"," +
+                "\"short_description\"]"
+        );
+        jsonBody = jsonBody.put("fields", fields);
+
         JSONObject softwareDict = new JSONObject();
-        softwareDict.put("product", params.get("software"));
+        switch (params.get("type")){
+            case "cpe":
+                String[] software=params.get("software").split(":");
+                /*
+                    "part": "a",
+                    "vendor": "ivanti",
+                    "product": "connect_secure",
+                    "version": "22.7",
+                    "update": "r2.4"
+                */
+                softwareDict.put("part", software[1].substring(1));
+                softwareDict.put("vendor", software[2]);
+                softwareDict.put("product", software[3]);
+
+                for(String s: software){
+                    callbacks.printOutput(s);
+                }
+                break;
+            case "software":
+                softwareDict.put("product", params.get("software"));
+                break;
+            default:
+                break;
+        }
+
         softwareDict.put("version", params.get("version"));
 
         List<JSONObject> softwareList = new ArrayList<>();
@@ -151,8 +183,6 @@ public class HttpClient {
 
         jsonBody.put("software", softwareList);
         jsonBody = jsonBody.put("apiKey", burpExtender.getApiKey());
-
-//        }
 
         byte[] request = helpers.buildHttpMessage(headers, helpers.stringToBytes(jsonBody.toString()));
         byte[] response = callbacks.makeHttpRequest(VULNERS_API_HOST, 443, true, request);

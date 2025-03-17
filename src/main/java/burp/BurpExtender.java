@@ -167,4 +167,8 @@ public class BurpExtender extends PassiveScan {
     public Boolean isUseApiV4() {
         return tabComponent.getCbxApiVersionV4().isSelected();
     }
+
+    public Boolean isSearchForExploits() {
+        return tabComponent.getCbxApiSearchForExploits().isSelected();
+    }
 }

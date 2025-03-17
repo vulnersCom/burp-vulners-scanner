@@ -75,13 +75,16 @@ public class Utils {
                     cves.add(((JSONObject) vuln).getString("id"));
 
                 }
+                // start with minimum info
+                // send for cve with v3/search
+                // call update on the correspondent vulns
 
                 JSONObject cveInfo = httpClient.requestSearchById(cves);
 
                 for(String cveName: cveInfo.keySet()) {
                     JSONObject bulletin = cveInfo.getJSONObject(cveName);
                     vulnerabilities.add(
-                            new Vulnerability(((JSONObject) bulletin))
+                            new Vulnerability(bulletin)
                     );
                 }
             }
