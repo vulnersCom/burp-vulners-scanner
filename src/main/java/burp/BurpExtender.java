@@ -17,8 +17,10 @@ import java.util.regex.Pattern;
 public class BurpExtender extends PassiveScan {
 
     public static String SETTING_API_KEY_NAME = "SETTING_API_KEY_NAME";
+    public static String SETTING_IS_PREMIUM_NAME = "SETTING_IS_PREMIUM_NAME";
 
     private String apiKey = "";
+    private boolean isPremium = false;
     private TabComponent tabComponent;
     private VulnersService vulnersService;
     private Map<String, Domain> domains = new HashMap<>();
@@ -37,6 +39,9 @@ public class BurpExtender extends PassiveScan {
         apiKey = callbacks.loadExtensionSetting(SETTING_API_KEY_NAME);
         tabComponent.setAPIKey(apiKey);
 
+        if(callbacks.loadExtensionSetting(SETTING_IS_PREMIUM_NAME) != null && !callbacks.loadExtensionSetting(SETTING_IS_PREMIUM_NAME).isEmpty())
+            isPremium = callbacks.loadExtensionSetting(SETTING_IS_PREMIUM_NAME).equals("true");
+
         vulnersService = new VulnersService(this, callbacks, helpers, domains, tabComponent);
         try {
             vulnersService.loadRules();
@@ -49,7 +54,7 @@ public class BurpExtender extends PassiveScan {
     public List<IScanIssue> doPassiveScan(IHttpRequestResponse baseRequestResponse) {
         List<IScanIssue> issues = super.doPassiveScan(baseRequestResponse);
 
-        if (getApiKey() == null) {
+        if (getApiKey() == null || getApiKey().isEmpty()) {
             callbacks.printError("[Vulners] doPassiveScan There must be an API key.");
             return issues;
         }
@@ -82,6 +87,11 @@ public class BurpExtender extends PassiveScan {
     @Override
     protected List<IScanIssue> processIssues(List<ScannerMatch> matches, IHttpRequestResponse baseRequestResponse) {
         if (matches.isEmpty()) {
+            return super.processIssues(matches, baseRequestResponse);
+        }
+
+        if (getApiKey() == null || getApiKey().isEmpty()) {
+            callbacks.printError("[Vulners] doPassiveScan There must be an API key.");
             return super.processIssues(matches, baseRequestResponse);
         }
 
@@ -136,7 +146,7 @@ public class BurpExtender extends PassiveScan {
 
     @Override
     protected IScanIssue getScanIssue(IHttpRequestResponse baseRequestResponse, List<ScannerMatch> matches, List<int[]> startStop) {
-        return new SoftwareIssue(baseRequestResponse, helpers, callbacks, startStop, new Software("", "", "", "", "")); //TODO
+        return new SoftwareIssue(baseRequestResponse, helpers, callbacks, this, startStop, new Software("", "", "", "", "")); //TODO
     }
 
     public VulnersService getVulnersService() {
@@ -159,6 +169,11 @@ public class BurpExtender extends PassiveScan {
             callbacks.printOutput("[Vulners] Set API key " + apiKey);
             callbacks.saveExtensionSetting(SETTING_API_KEY_NAME, apiKey);
             this.apiKey = apiKey;
+
+            String isVulnersPremium = vulnersService.isPremiumSubscription();
+            callbacks.printOutput("[Vulners] Set isPremium " + isVulnersPremium);
+            callbacks.saveExtensionSetting(SETTING_IS_PREMIUM_NAME, isVulnersPremium);
+            this.isPremium = isVulnersPremium.equals("true");
         } else {
             callbacks.printError("[Vulners] Wrong api key provided, should match /[A-Z0-9]{64}/ " + apiKey);
         }
@@ -168,7 +183,7 @@ public class BurpExtender extends PassiveScan {
         return tabComponent.getCbxApiVersionV4().isSelected();
     }
 
-    public Boolean isSearchForExploits() {
-        return tabComponent.getCbxApiSearchForExploits().isSelected();
+    public boolean isPremiumSubscription(){
+        return isPremium;
     }
 }

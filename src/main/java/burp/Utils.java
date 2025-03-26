@@ -54,6 +54,7 @@ public class Utils {
 
     public Set<Vulnerability> getVulnerabilities(JSONObject data) {
         Set<Vulnerability> vulnerabilities = new HashSet<>();
+        Map<String, Vulnerability> lVulnerabilities = new HashMap<>();
 
         // Parse OLD Api
         if (data.has("search")) {
@@ -65,30 +66,21 @@ public class Utils {
             }
         } else {
             // Use new API V4
-            if(!data.get("result").getClass().equals(JSONArray.class))
+            if(!data.has("result") || !data.get("result").getClass().equals(JSONArray.class))
                 return vulnerabilities;
 
-            List<String> cves = new ArrayList<String>();
+            String cveId;
             for (Object entry : data.getJSONArray("result") ) {
-
                 for (Object vuln: ((JSONObject) entry).getJSONArray("vulnerabilities")) {
-                    cves.add(((JSONObject) vuln).getString("id"));
-
-                }
-                // start with minimum info
-                // send for cve with v3/search
-                // call update on the correspondent vulns
-
-                JSONObject cveInfo = httpClient.requestSearchById(cves);
-
-                for(String cveName: cveInfo.keySet()) {
-                    JSONObject bulletin = cveInfo.getJSONObject(cveName);
-                    vulnerabilities.add(
-                            new Vulnerability(bulletin)
-                    );
+                    cveId = ((JSONObject) vuln).getString("id");
+                    lVulnerabilities.put(cveId, Vulnerability.fromAuditV4((JSONObject) vuln));
                 }
             }
+
+            vulnerabilities.addAll(lVulnerabilities.values());
         }
+
         return vulnerabilities;
     }
+
 }

@@ -30,18 +30,39 @@ public class HttpClient {
         if (burpExtender.isUseApiV4())
             return requestV4("POST", params);
         else
-            return request("POST", action, params);
+            return requestV3("POST", action, params);
     }
-
-//    public JSONObject postV4(String action, Map<String, String> params) {
-//        return requestV4("POST", params);
-//    }
 
     public JSONObject get(String action, Map<String, String> params) {
-        return request("GET", action, params);
+        return requestV3("GET", action, params);
     }
 
-    public JSONObject request(String method, String action, Map<String, String> params) {
+    public JSONObject getLicenses() {
+
+        if (burpExtender.getApiKey() == null) {
+            callbacks.printError("[Vulners] There must be an API key.");
+            return new JSONObject();
+        }
+
+        List<String> headers = new ArrayList<>();
+        headers.add("GET " + "/api/v3/useraction/licenseids?apiKey=" + burpExtender.getApiKey() + " HTTP/1.1");
+        headers.add("Host: " + VULNERS_API_HOST);
+        headers.add("User-Agent: vulners-burpscanner-v-" + VULNERS_BURP_VERSION );
+        headers.add("Content-type: application/json");
+
+        JSONObject jsonBody = new JSONObject();
+
+        byte[] request = helpers.buildHttpMessage(headers, helpers.stringToBytes(jsonBody.toString()));
+        byte[] response = callbacks.makeHttpRequest(VULNERS_API_HOST, 443, true, request);
+
+        JSONObject responseBody = parseResponse(response);
+
+        callbacks.printOutput(responseBody.toString());
+
+        return responseBody;
+    }
+
+    public JSONObject requestV3(String method, String action, Map<String, String> params) {
         List<String> headers = new ArrayList<>();
         headers.add( method + " " + VULNERS_API_PATH + action + "/ HTTP/1.1");
         headers.add("Host: " + VULNERS_API_HOST);
@@ -69,60 +90,6 @@ public class HttpClient {
         return parseResponse(response);
     }
 
-    public JSONObject requestSearchById(List<String> cveID) {
-
-        if (!burpExtender.isSearchForExploits())
-        {
-            return new JSONObject();
-        }
-
-        List<String> headers = new ArrayList<>();
-        headers.add( "POST " + VULNERS_API_SEARCH_ID_PATH + "/ HTTP/1.1");
-        headers.add("Host: " + VULNERS_API_HOST);
-        headers.add("User-Agent: vulners-burpscanner-v-" + VULNERS_BURP_VERSION );
-        headers.add("Content-type: application/json");
-
-        JSONObject jsonBody = new JSONObject();
-
-        if (burpExtender.getApiKey() != null) {
-            jsonBody = jsonBody.put("apiKey", burpExtender.getApiKey());
-        }
-        else {
-            callbacks.printError("[Vulners] requestSearchByID There must be an API key.");
-            return new JSONObject();
-        }
-
-        JSONArray fields = new JSONArray("[\n" +
-                "    \"id\",\n" +
-                "    \"title\",\n" +
-                "    \"description\",\n" +
-                "    \"type\",\n" +
-                "    \"bulletinFamily\",\n" +
-                "    \"cvss\"]"
-        );
-
-        jsonBody = jsonBody.put("fields", fields);
-        jsonBody = jsonBody.put("id", cveID);
-
-
-        byte[] request = helpers.buildHttpMessage(headers, helpers.stringToBytes(jsonBody.toString()));
-        byte[] response = callbacks.makeHttpRequest(VULNERS_API_HOST, 443, true, request);
-
-        String responseString = helpers.bytesToString(response);
-        IResponseInfo iResponseInfo = helpers.analyzeResponse(response);
-        String jsonString = responseString.substring(iResponseInfo.getBodyOffset());
-
-        JSONObject object = new JSONObject(jsonString);
-
-        if (iResponseInfo.getStatusCode() != 200) {
-            callbacks.printOutput("[DEBUG] V4 not OK");
-            callbacks.printOutput(jsonString);
-            return object;
-        }
-
-        return object.optJSONObject("data").optJSONObject("documents");
-    }
-
     public JSONObject requestV4(String method, Map<String, String> params) {
         List<String> headers = new ArrayList<>();
         headers.add( method + " " + VULNERS_API_V4_PATH + "/ HTTP/1.1");
@@ -131,22 +98,18 @@ public class HttpClient {
         headers.add("Content-type: application/json");
 
         JSONObject jsonBody = new JSONObject();
-        /*
-        * {
-"software":[
-* {"product":"Angular",
-"version":"11.0.0"
-}],
-"apiKey":""}
-        * */
+
         if (burpExtender.getApiKey() == null) {
             callbacks.printError("[Vulners] requestV4 There must be an API key.");
             return new JSONObject();
         }
 
-        JSONArray fields = new JSONArray("[\"title\"," +
-                "\"type\"," +
-                "\"short_description\"]"
+        JSONArray fields = new JSONArray("[\n" +
+                "\"title\"," +
+                "\"webApplicability\"," +
+                "\"description\"," +
+                "\"enchantments\"," +
+                "\"metrics\"]"
         );
         jsonBody = jsonBody.put("fields", fields);
 
@@ -161,13 +124,15 @@ public class HttpClient {
                     "version": "22.7",
                     "update": "r2.4"
                 */
+
+                /* exploitdb software
+                * {"product":"AEGON LIFE",
+"version": "1.0"
+}
+* */
                 softwareDict.put("part", software[1].substring(1));
                 softwareDict.put("vendor", software[2]);
                 softwareDict.put("product", software[3]);
-
-                for(String s: software){
-                    callbacks.printOutput(s);
-                }
                 break;
             case "software":
                 softwareDict.put("product", params.get("software"));
@@ -180,6 +145,12 @@ public class HttpClient {
 
         List<JSONObject> softwareList = new ArrayList<>();
         softwareList.add(softwareDict);
+
+
+//        // TODO: remove in production :)
+//        softwareList.add(new JSONObject("{\"product\":\"AEGON LIFE\",\n" +
+//                "\"version\": \"1.0\"\n" +
+//                "}"));
 
         jsonBody.put("software", softwareList);
         jsonBody = jsonBody.put("apiKey", burpExtender.getApiKey());

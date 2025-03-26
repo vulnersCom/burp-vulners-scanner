@@ -19,13 +19,16 @@ public class SoftwareIssue implements IScanIssue {
     private final IBurpExtenderCallbacks callbacks;
     private final List<int[]> startStop;
 
+    private final BurpExtender burpExtender;
+
     private Software software;
 
-    SoftwareIssue(IHttpRequestResponse baseRequestResponse, IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, List<int[]> startStop, Software software) {
+    SoftwareIssue(IHttpRequestResponse baseRequestResponse, IExtensionHelpers helpers, IBurpExtenderCallbacks callbacks, BurpExtender burpExtender, List<int[]> startStop, Software software) {
         this.baseRequestResponse = baseRequestResponse;
         this.helpers = helpers;
         this.callbacks = callbacks;
         this.startStop = startStop;
+        this.burpExtender = burpExtender;
 
         this.software = software;
     }
@@ -44,7 +47,7 @@ public class SoftwareIssue implements IScanIssue {
 
     private String getVulnerableIssue() {
         String template = "The following vulnerabilities for software <b>%s - %s</b> found: <br/>";
-        String itemTemplate = "<li> %s - %s %s - %s <br/> %s <br/><br/>";
+        String itemTemplate = "<li> %s - %s - %s %s <br/> %s <br/> %s <br/>";
 
         StringBuilder string = new StringBuilder();
         string.append(String.format(template, software.getName(), software.getVersion()));
@@ -54,9 +57,10 @@ public class SoftwareIssue implements IScanIssue {
             string.append(String.format(itemTemplate,
                     v.getItemLink(),
                     v.getItemCvssScore(),
-                    v.getExploitLink(),
                     v.getTitle(),
-                    v.getItemDescription()
+                    v.getHasExploit() ? "<b>Has Exploits</b>" : "",
+                    v.getItemDescription(),
+                    getExploits(v)
             ));
         }
 
@@ -141,6 +145,19 @@ public class SoftwareIssue implements IScanIssue {
 
     private boolean hasVulnerabilities() {
         return software.getVulnerabilities().size() > 0;
+    }
+
+    private String getExploits(Vulnerability vulnerability) {
+        StringBuilder string = new StringBuilder();
+
+        if (burpExtender.isPremiumSubscription()) {
+            string.append("<ul>");
+            for (String[] v: vulnerability.getExploits()) {
+                string.append(String.format("<li><a href=\"https://vulners.com/%s/%s\" target=\"_blank\">%s</a></li>", v[0], v[1], v[1]));
+            }
+            string.append("</ul>");
+        }
+        return string.toString();
     }
 
 }

@@ -12,12 +12,15 @@ import com.intellij.uiDesigner.core.GridLayoutManager;
 import com.intellij.uiDesigner.core.Spacer;
 
 import javax.swing.*;
+import javax.swing.plaf.FontUIResource;
+import javax.swing.text.StyleContext;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 public class TabComponent {
@@ -34,7 +37,6 @@ public class TabComponent {
     private JTable tblPaths;
     private JCheckBox cbxPathSearch;
     private JCheckBox cbxApiVersionV4;
-    private JCheckBox cbxApiSearchForExploits;
     private JButton btnTblSoftwareClear;
     private JButton btnTblPathClear;
     private JCheckBox cbxSoftwareShowVuln;
@@ -134,10 +136,6 @@ public class TabComponent {
 
     public JCheckBox getCbxApiVersionV4() {
         return cbxApiVersionV4;
-    }
-
-    public JCheckBox getCbxApiSearchForExploits() {
-        return cbxApiSearchForExploits;
     }
 
     public JCheckBox getCbxSoftwareShowVuln() {
@@ -285,7 +283,7 @@ public class TabComponent {
         btnTblPathClear.setText("Clear");
         panel6.add(btnTblPathClear, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JPanel panel7 = new JPanel();
-        panel7.setLayout(new GridLayoutManager(6, 2, new Insets(10, 0, 0, 0), -1, -1));
+        panel7.setLayout(new GridLayoutManager(5, 2, new Insets(10, 0, 0, 0), -1, -1));
         tabbedPane1.addTab("Options", panel7);
         final JLabel label10 = new JLabel();
         Font label10Font = this.$$$getFont$$$(null, Font.BOLD, -1, label10.getFont());
@@ -299,9 +297,9 @@ public class TabComponent {
         panel7.add(cbxPathSearch, new GridConstraints(1, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
         final JLabel label11 = new JLabel();
         label11.setText("Use scan by locations paths");
-        panel7.add(label11, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        panel7.add(label11, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer();
-        panel7.add(spacer3, new GridConstraints(5, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel7.add(spacer3, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label12 = new JLabel();
         label12.setText("Scope Only");
         panel7.add(label12, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -310,40 +308,15 @@ public class TabComponent {
         cbxPathScanInScope.setSelected(true);
         cbxPathScanInScope.setText("");
         panel7.add(cbxPathScanInScope, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
-        final JLabel label13 = new JLabel();
-        label13.setText("Scan for exploits (uses additional credits)");
-        panel7.add(label13, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        cbxApiSearchForExploits = new JCheckBox();
-        cbxApiSearchForExploits.setEnabled(true);
-        cbxApiSearchForExploits.setSelected(true);
-        cbxApiSearchForExploits.setText("");
-        panel7.add(cbxApiSearchForExploits, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
-        final JLabel label14 = new JLabel();
-        label14.setText("Use API V4");
-        panel7.add(label14, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         cbxApiVersionV4 = new JCheckBox();
         cbxApiVersionV4.setEnabled(true);
         cbxApiVersionV4.setSelected(true);
         cbxApiVersionV4.setText("");
-        panel7.add(cbxApiVersionV4, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
-
+        panel7.add(cbxApiVersionV4, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JLabel label13 = new JLabel();
+        label13.setText("Use api V4");
+        panel7.add(label13, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
     }
-//        final JLabel label13 = new JLabel();
-//        label13.setText("Scan for exploits (uses additional credits)");
-//        panel7.add(label13, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-//        cbxApiSearchForExploits = new JCheckBox();
-//        cbxApiSearchForExploits.setEnabled(true);
-//        cbxApiSearchForExploits.setSelected(true);
-//        cbxApiSearchForExploits.setText("");
-//        panel7.add(cbxApiSearchForExploits, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
-//        final JLabel label14 = new JLabel();
-//        label14.setText("Use API V4");
-//        panel7.add(label14, new GridConstraints(4, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-//        cbxApiVersionV4 = new JCheckBox();
-//        cbxApiVersionV4.setEnabled(true);
-//        cbxApiVersionV4.setSelected(true);
-//        cbxApiVersionV4.setText("");
-//        panel7.add(cbxApiVersionV4, new GridConstraints(4, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
 
     /**
      * @noinspection ALL
@@ -361,7 +334,10 @@ public class TabComponent {
                 resultName = currentFont.getName();
             }
         }
-        return new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
+        Font font = new Font(resultName, style >= 0 ? style : currentFont.getStyle(), size >= 0 ? size : currentFont.getSize());
+        boolean isMac = System.getProperty("os.name", "").toLowerCase(Locale.ENGLISH).startsWith("mac");
+        Font fontWithFallback = isMac ? new Font(font.getFamily(), font.getStyle(), font.getSize()) : new StyleContext().getFont(font.getFamily(), font.getStyle(), font.getSize());
+        return fontWithFallback instanceof FontUIResource ? fontWithFallback : new FontUIResource(fontWithFallback);
     }
 
     /**

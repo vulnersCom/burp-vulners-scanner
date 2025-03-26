@@ -38,7 +38,7 @@ public class PathIssue implements IScanIssue {
         String template = "! All found vulnerabilities have to be checked " +
                 "" +
                 "The following vulnerabilities for path <b>%s</b> found: <br/>";
-        String itemTemplate = "<li> %s - %s %s - %s <br/> %s <br/><br/>";
+        String itemTemplate = "<li> %s - %s - %s <br/> %s <br/><br/>";
 
         StringBuilder string = new StringBuilder();
         string.append(String.format(template, path));
@@ -47,7 +47,6 @@ public class PathIssue implements IScanIssue {
             string.append(String.format(itemTemplate,
                     v.getItemLink(),
                     v.getItemCvssScore(),
-                    v.getExploitLink(),
                     v.getTitle(),
                     v.getItemDescription()
             ));

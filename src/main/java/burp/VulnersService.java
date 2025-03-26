@@ -11,6 +11,7 @@ import burp.tasks.SoftwareScanTask;
 import com.codemagi.burp.MatchRule;
 import com.codemagi.burp.ScanIssueConfidence;
 import com.codemagi.burp.ScanIssueSeverity;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.table.DefaultTableModel;
@@ -50,6 +51,7 @@ public class VulnersService {
                 baseRequestResponse,
                 helpers,
                 callbacks,
+                burpExtender,
                 startStop,
                 domains.get(domainName).getSoftware().get(software.getKey())
         );
@@ -160,6 +162,21 @@ public class VulnersService {
                 burpExtender.printStackTrace(pse);
             }
         }
+    }
+
+    public String isPremiumSubscription(){
+        JSONObject licensesData = httpClient.getLicenses();
+
+        if(licensesData.get("licenseList").getClass().equals(JSONArray.class)) {
+            for (Object obj : licensesData.getJSONArray("licenseList")){
+                if(!((JSONObject)obj).optString("type","").equals("free")){
+                    // If there is at least one non-free license
+                    return "true";
+                }
+            }
+        }
+
+        return "false";
     }
 
 }
