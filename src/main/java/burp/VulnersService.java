@@ -99,6 +99,8 @@ public class VulnersService {
         new PathScanTask(request, httpClient, vulnersRequest -> {
             Set<Vulnerability> vulnerabilities = vulnersRequest.getVulnerabilities();
 
+            // in fact here we have Path vulnerabilities and need to add multiple issues
+
             if (vulnerabilities.isEmpty()) {
                 return;
             }
@@ -124,6 +126,13 @@ public class VulnersService {
                     vulnersRequest.getPath(),
                     vulnerabilities
             ));
+//            callbacks.addScanIssue(new PathIssue(
+//                    vulnersRequest.getBaseRequestResponse(),
+//                    helpers,
+//                    callbacks,
+//                    "/qwerty",
+//                    vulnerabilities
+//            ));
         }).run();
     }
 
@@ -132,7 +141,9 @@ public class VulnersService {
      */
     public void loadRules() throws IOException {
 
-        JSONObject data = httpClient.get("rules", new HashMap<String, String>());
+//        JSONObject data = httpClient.get("rules", new HashMap<String, String>());
+        JSONObject data = httpClient.getRules();
+
 
         JSONObject rules = data.getJSONObject("rules");
         Iterator<String> ruleKeys = rules.keys();

@@ -4,9 +4,11 @@ import burp.HttpClient;
 import burp.Utils;
 import burp.models.Vulnerability;
 import burp.models.VulnersRequest;
+import com.google.common.collect.Lists;
 import org.json.JSONObject;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
@@ -28,11 +30,19 @@ public class PathScanTask extends Thread {
     @Override
     public void run() {
 
-        JSONObject data = httpClient.post("path", new HashMap<String, String>() {{
-            put("path", vulnersRequest.getPath());
-        }});
+//        JSONObject data = httpClient.post("path", new HashMap<String, String>() {{
+//            put("path", vulnersRequest.getPath());
+//        }});
+        List<String> paths = Lists.newArrayList();
+//        paths.add(vulnersRequest.getPath());
+        vulnersRequest.getDomain();
 
-        Set<Vulnerability> vulnerabilities = utils.getVulnerabilities(data);
+        paths.add("/wp-content/cache/userlogins/");
+
+        JSONObject data = httpClient.getVulnerablePaths("POST", "path", paths);
+
+
+        Set<Vulnerability> vulnerabilities = utils.getPathVulnerabilities(data);
 
         vulnersRequest.setVulnerabilities(vulnerabilities);
 

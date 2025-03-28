@@ -31,7 +31,7 @@ public class SoftwareScanTask extends Thread {
 
         Software software = vulnersRequest.getSoftware();
 
-        JSONObject data = httpClient.post("softwareapi", new HashMap<String, String>() {{
+        JSONObject data = httpClient.getVulnerableSoftware( new HashMap<String, String>() {{
             put("software", software.getAlias());
             put("version", software.getVersion());
             put("type", software.getMatchType());
