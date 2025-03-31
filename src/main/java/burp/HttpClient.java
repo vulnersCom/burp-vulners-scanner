@@ -95,7 +95,7 @@ public class HttpClient {
         }
 
         List<String> headers = new ArrayList<>();
-        headers.add("POST " + VULNERS_API_GET_WEB_VULNS + "/ HTTP/1.1");
+        headers.add("POST " + VULNERS_API_GET_WEB_VULNS + " HTTP/1.1");
         headers.add("Host: " + VULNERS_API_HOST);
         headers.add("User-Agent: vulners-burpscanner-v-" + VULNERS_BURP_VERSION );
         headers.add("Content-type: application/json");
@@ -122,8 +122,6 @@ public class HttpClient {
         List<String> headers = new ArrayList<>();
         headers.add("GET " + VULNERS_API_GET_RULES_PATH + "/ HTTP/1.1");
         headers.add("Host: " + VULNERS_API_HOST);
-//        headers.add("User-Agent: Vulners NMAP Plugin 1.3");
-//        headers.add("Content-type: application/json");
         headers.add("User-Agent: vulners-burpscanner-v-" + VULNERS_BURP_VERSION );
         headers.add("Content-type: application/json");
 
@@ -150,6 +148,7 @@ public class HttpClient {
 
         JSONArray fields = new JSONArray("[\n" +
                 "\"title\"," +
+                "\"type\"," +
                 "\"webApplicability\"," +
                 "\"description\"," +
                 "\"enchantments\"," +

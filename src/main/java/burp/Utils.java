@@ -54,7 +54,7 @@ public class Utils {
 
     public Set<Vulnerability> getPathVulnerabilities(JSONObject data) {
         Set<Vulnerability> vulnerabilities=new HashSet<>();
-        Map<String, Set<Vulnerability>> lVulnerabilities = new HashMap<>();
+//        Map<String, Set<Vulnerability>> lVulnerabilities = new HashMap<>();
 
         // Use new API V4
         if(!data.has("result") || !data.get("result").getClass().equals(JSONObject.class))
@@ -62,18 +62,9 @@ public class Utils {
         data = data.getJSONObject("result");
         for (String path : data.keySet() ) {
             JSONArray vulns = data.getJSONArray(path);
-            for (Object vuln: vulns){
-//                    ((JSONObject) entry).getJSONArray("vulnerabilities")) {
-                String cveId = ((JSONObject) vuln).getString("id");
-
-//                vulnerabilities = new HashSet<>();
-
-                ((JSONObject) vuln).getJSONObject("webApplicability").getJSONArray("vulnerabilities")
-                        .forEach(v -> {
-                            vulnerabilities.add(PathVulnerability.fromWebVulns(cveId, (JSONObject) v));
-                });
-//                lVulnerabilities.put(cveId, vulnerabilities);
-            }
+            vulns.forEach(v -> {
+                vulnerabilities.add(PathVulnerability.fromWebVulns(path, (JSONObject) v));
+            });
         }
 
 //        vulnerabilities.addAll(lVulnerabilities.values());

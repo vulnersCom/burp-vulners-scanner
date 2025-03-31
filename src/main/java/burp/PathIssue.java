@@ -1,5 +1,6 @@
 package burp;
 
+import burp.models.PathVulnerability;
 import burp.models.Vulnerability;
 import com.codemagi.burp.ScanIssueConfidence;
 import com.codemagi.burp.ScanIssueSeverity;
@@ -38,20 +39,40 @@ public class PathIssue implements IScanIssue {
     @Override
     public String getIssueDetail() {
         String template = "! All found vulnerabilities have to be checked " +
-                "" +
                 "The following vulnerabilities for path <b>%s</b> found: <br/>";
-        String itemTemplate = "<li> %s - %s - %s <br/> %s <br/><br/>";
+        String potentialString = "The following potential paths have been identified as part of this vulnerability <br/>";
+        String itemTemplate = "<li> %s <br/> %s <br/><b>Param</b>: %s<br/><b>In</b>: %s<br/>";
+        String potentialItemTemplate = "<li> <b>Path</b>: %s <br/><b>Param</b>: %s<br/><b>In</b>: %s<br/>";
 
         StringBuilder string = new StringBuilder();
         string.append(String.format(template, path));
 
         for (final Vulnerability v: vulnerabilities) {
+            if(!v.getClass().equals(PathVulnerability.class)){
+                callbacks.printError("[VULNERS] PATH Issue Vulnerabilty not PathVulnerabilty but " + v.getClass().toString());
+                throw new RuntimeException("[VULNERS] PATH Issue Vulnerabilty not PathVulnerabilty");
+            }
             string.append(String.format(itemTemplate,
                     v.getItemLink(),
-                    v.getItemCvssScore(),
-                    v.getTitle(),
-                    v.getItemDescription()
+                    v.getItemDescription(),
+                    ((PathVulnerability) v).getParameter(),
+                    ((PathVulnerability) v).getPosition()
             ));
+            if(((PathVulnerability) v).isOriginal()){
+                // Need to add a list of all the potentials
+                string.append("</br>");
+                string.append(potentialString);
+                string.append("<ul>");
+                ((PathVulnerability) v).getPotentials().forEach(p ->
+                        string.append(String.format(potentialItemTemplate,
+                            p.getUrl(),
+                            p.getParameter(),
+                            p.getPosition()
+                                )
+                        )
+                );
+                string.append("</ul>");
+            }
         }
 
         return string.toString();

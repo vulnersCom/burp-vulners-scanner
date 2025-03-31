@@ -58,7 +58,7 @@ public class SoftwareIssue implements IScanIssue {
                     v.getItemLink(),
                     v.getItemCvssScore(),
                     v.getTitle(),
-                    v.getHasExploit() ? "<b>Has Exploits</b>" : "",
+                    v.getHasExploit() ? "<b color=\"red\">Has Exploits</b>" : "",
                     v.getItemDescription(),
                     getExploits(v)
             ));
