@@ -8,6 +8,7 @@ import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Ordering;
 
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.List;
@@ -126,17 +127,17 @@ public class SoftwareIssue implements IScanIssue {
 
     @Override
     public String getRemediationDetail() {
-        return "";
+        return null;
     }
 
     @Override
     public String getIssueBackground() {
-        return "";
+        return null;
     }
 
     @Override
     public String getRemediationBackground() {
-        return "";
+        return null;
     }
 
     public void setSoftware(Software software) {

@@ -46,7 +46,8 @@ public class Utils {
                 vulnerabilities, new Function<Vulnerability, String>() {
                     @Override
                     public String apply(Vulnerability vulnerability) {
-                        return vulnerability.getId();
+//                        return vulnerability.getId();
+                        return vulnerability.getItemLink();
                     }
                 }
         );

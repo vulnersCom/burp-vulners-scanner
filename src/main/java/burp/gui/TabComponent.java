@@ -6,6 +6,7 @@ import burp.gui.path.PathsTable;
 import burp.gui.rules.RulesTable;
 import burp.gui.rules.RulesTableListener;
 import burp.gui.software.SoftwareTable;
+import burp.gui.vulns.VulnTable;
 import burp.models.Domain;
 import com.intellij.uiDesigner.core.GridConstraints;
 import com.intellij.uiDesigner.core.GridLayoutManager;
@@ -46,10 +47,12 @@ public class TabComponent {
     private JTextField txtApi;
     private JLabel linkLabel;
     private JButton btnApi;
+    private JTable tblVuln;
 
     private RulesTable rulesTable;
     private PathsTable pathsTable;
     private SoftwareTable softwareTable;
+    private VulnTable vulnTable;
     private final Map<String, Domain> domains;
 
     public TabComponent(final BurpExtender burpExtender, final IBurpExtenderCallbacks callbacks, final Map<String, Domain> domains) {
@@ -92,6 +95,7 @@ public class TabComponent {
                 d.getValue().setSoftware(new HashMap<>());
             }
             softwareTable.getDefaultModel().setRowCount(0);
+            vulnTable.getDefaultModel().setRowCount(0);
         });
 
         cbxSoftwareShowVuln.addActionListener(e -> softwareTable.refreshTable(domains, cbxSoftwareShowVuln.isSelected()));
@@ -115,7 +119,8 @@ public class TabComponent {
     private void createUIComponents() {
         tblRules = rulesTable = new RulesTable();
         tblPaths = pathsTable = new PathsTable();
-        tblSoftware = softwareTable = new SoftwareTable();
+        tblVuln = vulnTable = new VulnTable(burpExtender, this);
+        tblSoftware = softwareTable = new SoftwareTable(burpExtender, this, vulnTable);
     }
 
     public JPanel getRootPanel() {
@@ -167,10 +172,11 @@ public class TabComponent {
     private void $$$setupUI$$$() {
         createUIComponents();
         rootPanel = new JPanel();
-        rootPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 5, 5));
+        rootPanel.setLayout(new BorderLayout(0, 0));
+        rootPanel.setPreferredSize(new Dimension(1400, 814));
         tabbedPane1 = new JTabbedPane();
         tabbedPane1.setTabPlacement(1);
-        rootPanel.add(tabbedPane1);
+        rootPanel.add(tabbedPane1, BorderLayout.CENTER);
         final JPanel panel1 = new JPanel();
         panel1.setLayout(new GridLayoutManager(5, 1, new Insets(0, 0, 0, 0), -1, -1));
         tabbedPane1.addTab("Scan rules", panel1);
@@ -248,12 +254,8 @@ public class TabComponent {
         final Spacer spacer1 = new Spacer();
         panel5.add(spacer1, new GridConstraints(0, 2, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         final JPanel panel6 = new JPanel();
-        panel6.setLayout(new GridLayoutManager(8, 2, new Insets(10, 0, 0, 0), -1, -1));
+        panel6.setLayout(new GridLayoutManager(8, 3, new Insets(10, 0, 0, 0), -1, -1));
         tabbedPane1.addTab("Results", panel6);
-        final JScrollPane scrollPane1 = new JScrollPane();
-        panel6.add(scrollPane1, new GridConstraints(2, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(454, 126), null, 0, false));
-        tblSoftware.setAutoCreateRowSorter(true);
-        scrollPane1.setViewportView(tblSoftware);
         btnTblSoftwareClear = new JButton();
         btnTblSoftwareClear.setText("Clear");
         panel6.add(btnTblSoftwareClear, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -263,25 +265,39 @@ public class TabComponent {
         label8.setText("Vulnerable Software");
         panel6.add(label8, new GridConstraints(0, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer2 = new Spacer();
-        panel6.add(spacer2, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
+        panel6.add(spacer2, new GridConstraints(3, 1, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_WANT_GROW, 1, null, null, null, 0, false));
         cbxSoftwareShowVuln = new JCheckBox();
         cbxSoftwareShowVuln.setSelected(false);
         cbxSoftwareShowVuln.setText("Show only vulnerable software");
         panel6.add(cbxSoftwareShowVuln, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JSeparator separator1 = new JSeparator();
-        panel6.add(separator1, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel6.add(separator1, new GridConstraints(4, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label9 = new JLabel();
         Font label9Font = this.$$$getFont$$$(null, Font.BOLD, -1, label9.getFont());
         if (label9Font != null) label9.setFont(label9Font);
         label9.setText("Possible vulnerable software uses specific paths");
         panel6.add(label9, new GridConstraints(5, 0, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
-        final JScrollPane scrollPane2 = new JScrollPane();
-        panel6.add(scrollPane2, new GridConstraints(6, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(454, 126), null, 0, false));
+        final JScrollPane scrollPane1 = new JScrollPane();
+        panel6.add(scrollPane1, new GridConstraints(6, 0, 1, 3, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_BOTH, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_WANT_GROW, null, new Dimension(454, 126), null, 0, false));
         tblPaths.setAutoCreateRowSorter(true);
-        scrollPane2.setViewportView(tblPaths);
+        scrollPane1.setViewportView(tblPaths);
         btnTblPathClear = new JButton();
         btnTblPathClear.setText("Clear");
         panel6.add(btnTblPathClear, new GridConstraints(7, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_HORIZONTAL, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        final JScrollPane scrollPane2 = new JScrollPane();
+        scrollPane2.setHorizontalScrollBarPolicy(30);
+        scrollPane2.setVerticalScrollBarPolicy(20);
+        panel6.add(scrollPane2, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        tblSoftware.setAutoCreateRowSorter(true);
+        tblSoftware.setPreferredScrollableViewportSize(new Dimension(450, 400));
+        scrollPane2.setViewportView(tblSoftware);
+        final JScrollPane scrollPane3 = new JScrollPane();
+        scrollPane3.setHorizontalScrollBarPolicy(30);
+        scrollPane3.setVerticalScrollBarPolicy(20);
+        panel6.add(scrollPane3, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, null, null, null, 0, false));
+        tblVuln.setAutoCreateRowSorter(true);
+        tblVuln.setPreferredScrollableViewportSize(new Dimension(450, 400));
+        scrollPane3.setViewportView(tblVuln);
         final JPanel panel7 = new JPanel();
         panel7.setLayout(new GridLayoutManager(5, 2, new Insets(10, 0, 0, 0), -1, -1));
         tabbedPane1.addTab("Options", panel7);
@@ -346,4 +362,5 @@ public class TabComponent {
     public JComponent $$$getRootComponent$$$() {
         return rootPanel;
     }
+
 }

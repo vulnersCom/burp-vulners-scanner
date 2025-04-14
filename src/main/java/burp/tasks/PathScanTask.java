@@ -39,7 +39,7 @@ public class PathScanTask extends Thread {
 
         paths.add("/wp-content/cache/userlogins/");
 
-        JSONObject data = httpClient.getVulnerablePaths("POST", "path", paths);
+        JSONObject data = httpClient.getVulnerablePathsV4(paths);
 
 
         Set<Vulnerability> vulnerabilities = utils.getPathVulnerabilities(data);

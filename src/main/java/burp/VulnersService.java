@@ -190,4 +190,9 @@ public class VulnersService {
         return "false";
     }
 
+    public Map<String, Domain> getDomains() {
+        return domains;
+    }
+
+
 }

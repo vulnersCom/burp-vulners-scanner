@@ -91,7 +91,7 @@ public class BurpExtender extends PassiveScan {
         }
 
         if (getApiKey() == null || getApiKey().isEmpty()) {
-            callbacks.printError("[Vulners] doPassiveScan There must be an API key.");
+            callbacks.printError("[Vulners] processIssues There must be an API key.");
             return super.processIssues(matches, baseRequestResponse);
         }
 
@@ -178,6 +178,10 @@ public class BurpExtender extends PassiveScan {
             callbacks.printError("[Vulners] Wrong api key provided, should match /[A-Z0-9]{64}/ " + apiKey);
         }
     }
+
+    public void printOutput(String m){ callbacks.printOutput(m);}
+
+    public void printError(String m){ callbacks.printError(m);}
 
     public Boolean isUseApiV4() {
         return tabComponent.getCbxApiVersionV4().isSelected();

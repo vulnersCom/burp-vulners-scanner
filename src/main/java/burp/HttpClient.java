@@ -11,13 +11,12 @@ public class HttpClient {
 
     private static final String VULNERS_BURP_VERSION = "1.4";
     private static final String VULNERS_API_HOST = "vulners.com";
-    private static final String VULNERS_API_PATH = "/api/v3/burp/";
-    private static final String VULNERS_API_GET_RULES_PATH = VULNERS_API_PATH + "rules/";
-    private static final String VULNERS_API_GET_WEB_VULNS = "/api/v4/search/web-vulns/";
-
-
-    private static final String VULNERS_API_V4_PATH = "/api/v4/audit/software/";
+    private static final String VULNERS_API_GET_RULES_PATH = "/api/v3/burp/rules/";
     private static final String VULNERS_API_GET_LICENSES = "/api/v3/useraction/licenseids";
+
+    private static final String VULNERS_API_PATH = "/api/v4";
+    private static final String VULNERS_API_GET_WEB_VULNS = VULNERS_API_PATH + "/search/web-vulns/";
+    private static final String VULNERS_API_SOFTWARE_AUDIT_PATH = VULNERS_API_PATH + "/audit/software/";
 
     private final IBurpExtenderCallbacks callbacks;
     private final IExtensionHelpers helpers;
@@ -57,36 +56,32 @@ public class HttpClient {
         byte[] request = helpers.buildHttpMessage(headers, helpers.stringToBytes(jsonBody.toString()));
         byte[] response = callbacks.makeHttpRequest(VULNERS_API_HOST, 443, true, request);
 
-        JSONObject responseBody = parseResponse(response);
-
-        callbacks.printOutput(responseBody.toString());
-
-        return responseBody;
-    }
-
-    public JSONObject getVulnerablePaths(String method, String action, List<String> paths) {
-        if(burpExtender.isUseApiV4())
-            return getVulnerablePathsV4(paths);
-
-        if (burpExtender.getApiKey() == null) {
-            callbacks.printError("[Vulners] There must be an API key.");
-            return new JSONObject();
-        }
-
-        List<String> headers = new ArrayList<>();
-        headers.add( method + " " + VULNERS_API_PATH + action + "/ HTTP/1.1");
-        headers.add("Host: " + VULNERS_API_HOST);
-        headers.add("User-Agent: vulners-burpscanner-v-" + VULNERS_BURP_VERSION );
-        headers.add("Content-type: application/json");
-
-        JSONObject jsonBody = new JSONObject();
-        jsonBody.put("path", paths.getFirst());
-        jsonBody.put("apiKey", burpExtender.getApiKey());
-
-        byte[] request = helpers.buildHttpMessage(headers, helpers.stringToBytes(jsonBody.toString()));
-        byte[] response = callbacks.makeHttpRequest(VULNERS_API_HOST, 443, true, request);
         return parseResponse(response);
     }
+
+//    public JSONObject getVulnerablePaths(String method, String action, List<String> paths) {
+//        if(burpExtender.isUseApiV4())
+//            return getVulnerablePathsV4(paths);
+//
+//        if (burpExtender.getApiKey() == null) {
+//            callbacks.printError("[Vulners] There must be an API key.");
+//            return new JSONObject();
+//        }
+//
+//        List<String> headers = new ArrayList<>();
+//        headers.add( method + " " + VULNERS_API_PATH + action + "/ HTTP/1.1");
+//        headers.add("Host: " + VULNERS_API_HOST);
+//        headers.add("User-Agent: vulners-burpscanner-v-" + VULNERS_BURP_VERSION );
+//        headers.add("Content-type: application/json");
+//
+//        JSONObject jsonBody = new JSONObject();
+//        jsonBody.put("path", paths.getFirst());
+//        jsonBody.put("apiKey", burpExtender.getApiKey());
+//
+//        byte[] request = helpers.buildHttpMessage(headers, helpers.stringToBytes(jsonBody.toString()));
+//        byte[] response = callbacks.makeHttpRequest(VULNERS_API_HOST, 443, true, request);
+//        return parseResponse(response);
+//    }
 
     public JSONObject getVulnerablePathsV4(List<String> paths) {
         if (burpExtender.getApiKey() == null) {
@@ -105,17 +100,10 @@ public class HttpClient {
         jsonBody.put("paths", paths);
         jsonBody = jsonBody.put("apiKey", burpExtender.getApiKey());
 
-        callbacks.printOutput("[DEBUG] Get paths");
-        callbacks.printOutput(jsonBody.toString());
-
         byte[] request = helpers.buildHttpMessage(headers, helpers.stringToBytes(jsonBody.toString()));
         byte[] response = callbacks.makeHttpRequest(VULNERS_API_HOST, 443, true, request);
 
-        JSONObject responseBody = parseResponseV4(response);
-        callbacks.printOutput(responseBody.toString());
-        callbacks.printOutput("[DEBUG] Get paths done");
-
-        return responseBody;
+        return parseResponseV4(response);
     }
 
     public JSONObject getRules() {
@@ -134,7 +122,7 @@ public class HttpClient {
 
     public JSONObject getVulnerableSoftware(Map<String, String> params) {
         List<String> headers = new ArrayList<>();
-        headers.add("POST " + VULNERS_API_V4_PATH + " HTTP/1.1");
+        headers.add("POST " + VULNERS_API_SOFTWARE_AUDIT_PATH + " HTTP/1.1");
         headers.add("Host: " + VULNERS_API_HOST);
         headers.add("User-Agent: vulners-burpscanner-v-" + VULNERS_BURP_VERSION);
         headers.add("Content-type: application/json");
@@ -223,6 +211,10 @@ public class HttpClient {
             if (iResponseInfo.getStatusCode() != 200) {
                 callbacks.printOutput("[DEBUG] V4 not OK");
                 callbacks.printOutput(jsonString);
+            } else if (object.get("result").getClass().equals(String.class)) {
+                // Something went wrong, and error should be in the .data.error
+                String errorDesc = object.getJSONObject("data").getString("error");
+                callbacks.printError("[VULNERS] Error occured while sendind http request to vulners: " + errorDesc);
             }
             return object;
         } catch (Exception e) {
