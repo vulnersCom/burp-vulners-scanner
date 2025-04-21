@@ -6,6 +6,7 @@ import burp.gui.TabComponent;
 import burp.models.Domain;
 import burp.models.Software;
 import burp.models.Vulnerability;
+import com.google.common.collect.Lists;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -13,58 +14,16 @@ import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Map;
 
 import java.net.URI;
 
-class URLSelectionListener extends MouseAdapter{
-    private final BurpExtender burpExtender;
-    private final TabComponent tabComponent;
-
-    URLSelectionListener(BurpExtender burpExtender, TabComponent tabComponent){
-        this.burpExtender = burpExtender;
-        this.tabComponent = tabComponent;
-    }
-
-    public void mousePressed(MouseEvent event){
-        if(event.isConsumed()){
-            return;
-        }
-
-        JTable table = (JTable) event.getSource();
-        int row = table.rowAtPoint(event.getPoint());
-
-        if(row >= 0){
-            table.setRowSelectionInterval(row, row);
-            int modelRow = table.convertRowIndexToModel(row);
-            TableModel model=table.getModel();
-            String id = (String) model.getValueAt(row,0);
-            String type = (String) model.getValueAt(row,1);
-            burpExtender.printOutput("[VULNERS] Table view mouse pressed for " + id);
-
-            String vulnersLink = String.format("https://vulners.com/%s/%s", type, id);
-
-            if(Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)){
-                try{
-                    Desktop.getDesktop().browse(new URI(vulnersLink));
-                } catch (Exception e1) {
-                    burpExtender.printError("[Vulners] Can not open link, please follow " + vulnersLink + " in your browser");
-                }
-            }
-            else{
-                burpExtender.printOutput("[VULNERS] Table view Desktop is disabled so please open the link yourself " + vulnersLink);
-            }
-
-            event.consume();
-        }
-
-
-    }
-}
 
 public class VulnTable extends JTable {
 
     private final DefaultTableModel defaultModel;
+    private ArrayList<String> vulnTypes=Lists.newArrayList();
 
     public VulnTable(BurpExtender burpExtender, TabComponent tabComponent) {
         DefaultTableModel model = new DefaultTableModel() {
@@ -75,7 +34,7 @@ public class VulnTable extends JTable {
         };
 
         model.addColumn("Vulnerability Id");
-        model.addColumn("Type");
+//        model.addColumn("Type");
 
 
         setModel(model);
@@ -84,39 +43,76 @@ public class VulnTable extends JTable {
 
     }
 
-    public void refreshTable(Domain domain) {
+    public void refreshTable(Domain domain, String path) {
+        if(domain == null){
+            clearTable();
+            return;
+        }
 
         defaultModel.setRowCount(0);
-//        for(Map.Entry<String, Domain> d: domains.entrySet()) {
-//            for (Map.Entry<String, Software> s: d.getValue().getSoftware().entrySet()) {
-//                if (showOnlyVulnerable && s.getValue().getVulnerabilities().size() <= 0) {
-//                    continue;
-//                }
-//                defaultModel.addRow(new Object[] {
-////                        d.getKey(),
-//                        s.getValue().getName(),
-////                        s.getValue().getVersion(),
-////                        Utils.getMaxScore(s.getValue().getVulnerabilities()), //TODO move maxScore field to model
-////                        Utils.getVulnersList(s.getValue().getVulnerabilities())
-//                });
-//            }
-        for(Map.Entry<String, Software> s: domain.getSoftware().entrySet()){
-//            defaultModel.addRow(new Object[]{
-//////                        d.getKey(),
-//                        s.getValue().getName()
-//            });
-            for(Vulnerability v: s.getValue().getVulnerabilities()){
-                defaultModel.addRow(new Object[]{
-////                        d.getKey(),
-                        v.getId(),
-                        v.getType()
-                });
-            }
+        vulnTypes.clear();
+
+        for(Vulnerability v: domain.getPaths().get(path)){
+            defaultModel.addRow(new Object[]{
+                    v.getId()
+//                    v.getType()
+            });
+            vulnTypes.add(v.getType());
         }
-//        }
     }
+
+    public void clearTable() {
+        defaultModel.setRowCount(0);
+        vulnTypes.clear();
+    }
+
 
     public DefaultTableModel getDefaultModel() {
         return defaultModel;
+    }
+
+    class URLSelectionListener extends MouseAdapter{
+        private final BurpExtender burpExtender;
+        private final TabComponent tabComponent;
+
+        URLSelectionListener(BurpExtender burpExtender, TabComponent tabComponent){
+            this.burpExtender = burpExtender;
+            this.tabComponent = tabComponent;
+        }
+
+        public void mousePressed(MouseEvent event){
+            if(event.isConsumed()){
+                return;
+            }
+
+            JTable table = (JTable) event.getSource();
+            int row = table.rowAtPoint(event.getPoint());
+
+            if(row >= 0){
+                table.setRowSelectionInterval(row, row);
+                int modelRow = table.convertRowIndexToModel(row);
+                TableModel model=table.getModel();
+                String id = (String) model.getValueAt(row,0);
+                String type =  vulnTypes.get(modelRow);
+
+                burpExtender.printOutput("[VULNERS] Table view mouse pressed for " + id + " of type " + type);
+
+                String vulnersLink = String.format("https://vulners.com/%s/%s", type, id);
+
+                if(Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)){
+                    try{
+                        Desktop.getDesktop().browse(new URI(vulnersLink));
+                    } catch (Exception e1) {
+                        burpExtender.printError("[Vulners] Can not open link, please follow " + vulnersLink + " in your browser");
+                    }
+                }
+                else{
+                    burpExtender.printOutput("[VULNERS] Table view Desktop is disabled so please open the link yourself " + vulnersLink);
+                }
+
+                event.consume();
+            }
+
+        }
     }
 }

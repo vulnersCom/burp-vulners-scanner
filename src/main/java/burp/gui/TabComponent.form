@@ -221,7 +221,7 @@
               </grid>
             </children>
           </grid>
-          <grid id="6619c" layout-manager="GridLayoutManager" row-count="8" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+          <grid id="6619c" layout-manager="GridLayoutManager" row-count="8" column-count="4" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
             <margin top="10" left="0" bottom="0" right="0"/>
             <constraints>
               <tabbedpane title="Results"/>
@@ -248,7 +248,7 @@
               </component>
               <hspacer id="b039b">
                 <constraints>
-                  <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+                  <grid row="3" column="1" row-span="1" col-span="3" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
                 </constraints>
               </hspacer>
               <component id="869ef" class="javax.swing.JCheckBox" binding="cbxSoftwareShowVuln">
@@ -262,7 +262,7 @@
               </component>
               <component id="b8ecf" class="javax.swing.JSeparator">
                 <constraints>
-                  <grid row="4" column="0" row-span="1" col-span="3" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+                  <grid row="4" column="0" row-span="1" col-span="4" vsize-policy="6" hsize-policy="6" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties/>
               </component>
@@ -277,7 +277,7 @@
               </component>
               <scrollpane id="831ca">
                 <constraints>
-                  <grid row="6" column="0" row-span="1" col-span="3" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
+                  <grid row="6" column="0" row-span="1" col-span="4" vsize-policy="7" hsize-policy="7" anchor="0" fill="3" indent="0" use-parent-layout="false">
                     <preferred-size width="454" height="126"/>
                   </grid>
                 </constraints>
@@ -323,7 +323,7 @@
               </scrollpane>
               <scrollpane id="57cd3">
                 <constraints>
-                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                  <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
                 </constraints>
                 <properties>
                   <horizontalScrollBar value=""/>
@@ -338,6 +338,21 @@
                     <properties>
                       <autoCreateRowSorter value="true"/>
                       <preferredScrollableViewportSize width="450" height="400"/>
+                    </properties>
+                  </component>
+                </children>
+              </scrollpane>
+              <scrollpane id="6144d">
+                <constraints>
+                  <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="0" indent="0" use-parent-layout="false"/>
+                </constraints>
+                <properties/>
+                <border type="none"/>
+                <children>
+                  <component id="b1c8a" class="javax.swing.JTable" binding="tblPath" custom-create="true">
+                    <constraints/>
+                    <properties>
+                      <autoCreateRowSorter value="true"/>
                     </properties>
                   </component>
                 </children>
