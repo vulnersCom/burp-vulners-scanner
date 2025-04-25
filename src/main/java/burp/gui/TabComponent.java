@@ -102,7 +102,11 @@ public class TabComponent {
             vulnTable.getDefaultModel().setRowCount(0);
         });
 
-        cbxSoftwareShowVuln.addActionListener(e -> softwareTable.refreshTable(domains, cbxSoftwareShowVuln.isSelected()));
+        cbxSoftwareShowVuln.addActionListener(e -> {
+            softwareTable.refreshTable(domains, cbxSoftwareShowVuln.isSelected());
+            pathTable.getDefaultModel().setRowCount(0);
+            vulnTable.getDefaultModel().setRowCount(0);
+        });
 
         linkLabel.addMouseListener(new MouseAdapter() {
             @Override

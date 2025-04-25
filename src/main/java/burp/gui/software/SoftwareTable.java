@@ -75,16 +75,19 @@ public class SoftwareTable extends JTable {
 
     }
 
-    public void refreshTable(Map<String, Domain> domains , boolean showOnlyVulnerable) {
+    public void refreshTable(Map<String, Domain> domains, boolean showOnlyVulnerable) {
         defaultModel.setRowCount(0);
 
-        for(String d: domains.keySet()) {
+        for(Map.Entry<String, Domain> d: domains.entrySet()) {
+            if (showOnlyVulnerable && !d.getValue().hasVulnerabilities()) {
+                    continue;
+            }
             defaultModel.addRow(new Object[] {
-                    d,
+                    d.getKey(),
                     "s.getValue().getName()",
                     "s.getValue().getVersion()",
                     "Utils.getMaxScore(s.getValue().getVulnerabilities())", //TODO move maxScore field to model
-                    "Utils.getVulnersList(s.getValue().getVulnerabilities())"
+                    d.getValue().hasVulnerabilities() ? "true" : "false"
             });
         }
 //        for(Map.Entry<String, Domain> d: domains.entrySet()) {

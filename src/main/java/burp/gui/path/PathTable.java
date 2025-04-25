@@ -22,6 +22,7 @@ public class PathTable extends JTable {
 
     private final DefaultTableModel defaultModel;
     private final VulnTable vulnTable;
+    BurpExtender burpExtender;
     private Domain d=null;
 
     public PathTable(BurpExtender burpExtender, TabComponent tabComponent, VulnTable vulnTable) {
@@ -37,6 +38,7 @@ public class PathTable extends JTable {
         setModel(model);
         this.defaultModel = model;
         this.vulnTable = vulnTable;
+        this.burpExtender = burpExtender;
         this.addMouseListener(new URLSelectionListener(burpExtender));
 
     }
@@ -44,6 +46,10 @@ public class PathTable extends JTable {
     public void refreshTable(Domain domain) {
         defaultModel.setRowCount(0);
         for (Map.Entry<String, Set<Vulnerability>> s: domain.getPaths().entrySet()) {
+            if(burpExtender.isShowOnluVuln() && s.getValue().isEmpty())
+            {
+                continue;
+            }
             defaultModel.addRow(new Object[] {
                     s.getKey()
             });

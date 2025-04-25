@@ -9,6 +9,7 @@ public class Domain {
     private String name;
     private Map<String, Software> software;
     private Map<String, Set<Vulnerability>> paths;
+    private boolean hasVulns=false;
 
     public Domain() {
         paths = new HashMap<>();
@@ -25,6 +26,27 @@ public class Domain {
 
     public Map<String, Set<Vulnerability>> getPaths() {
         return paths;
+    }
+
+    public boolean hasVulnerabilities() {
+        if(hasVulns)
+            return true;
+
+        for(Software s: this.software.values()){
+            if(!s.getVulnerabilities().isEmpty()){
+                this.hasVulns = true;
+                return true;
+            }
+        }
+
+        for(Set<Vulnerability> e: this.paths.values()){
+            if(!e.isEmpty()){
+                this.hasVulns = true;
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void setSoftware(Map<String, Software> software) {

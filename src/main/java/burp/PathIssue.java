@@ -52,13 +52,15 @@ public class PathIssue implements IScanIssue {
                 callbacks.printError("[VULNERS] PATH Issue Vulnerabilty not PathVulnerabilty but " + v.getClass().toString());
                 throw new RuntimeException("[VULNERS] PATH Issue Vulnerabilty not PathVulnerabilty");
             }
-            string.append(String.format(itemTemplate,
-                    v.getItemLink(),
-                    v.getItemDescription(),
-                    ((PathVulnerability) v).getParameter(),
-                    ((PathVulnerability) v).getPosition()
-            ));
-            if(((PathVulnerability) v).isOriginal()){
+            if(((PathVulnerability) v).isOriginal()) {
+                string.append(String.format(itemTemplate,
+                        v.getItemLink(),
+                        v.getItemDescription(),
+                        ((PathVulnerability) v).getParameter(),
+                        ((PathVulnerability) v).getPosition()
+                ));
+            }
+            if(!((PathVulnerability) v).getPotentials().isEmpty()){
                 // Need to add a list of all the potentials
                 string.append("</br>");
                 string.append(potentialString);

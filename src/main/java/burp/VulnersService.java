@@ -62,20 +62,33 @@ public class VulnersService {
             return;
         }
 
-        VulnersRequest request = new VulnersRequest(domainName, software, softwareIssue);
+        String path = helpers.analyzeRequest(baseRequestResponse).getUrl().getPath();
+
+        VulnersRequest request = new VulnersRequest(domainName, software, softwareIssue, path);
 
         new SoftwareScanTask(request, httpClient, vulnersRequest -> {
 
             Set<Vulnerability> vulnerabilities = vulnersRequest.getVulnerabilities();
 
             // update cache
-            for (Vulnerability vulnerability : vulnerabilities) {
-                domains.get(vulnersRequest.getDomain())
-                        .getSoftware()
-                        .get(vulnersRequest.getSoftware().getKey())
-                        .getVulnerabilities()
-                        .add(vulnerability);
-            }
+//            for (Vulnerability vulnerability : vulnerabilities) {
+//                domains.get(vulnersRequest.getDomain())
+//                        .getSoftware()
+//                        .get(vulnersRequest.getSoftware().getKey())
+//                        .getVulnerabilities()
+//                        .add(vulnerability);
+//
+//            }
+            domains.get(vulnersRequest.getDomain())
+                    .getSoftware()
+                    .get(vulnersRequest.getSoftware().getKey())
+                    .getVulnerabilities()
+                    .addAll(vulnerabilities);
+
+            domains.get(vulnersRequest.getDomain())
+                    .getPaths()
+                    .get(vulnersRequest.getPath())
+                    .addAll(vulnerabilities);
 
             // update gui component
             tabComponent.getSoftwareTable().refreshTable(domains, tabComponent.getCbxSoftwareShowVuln().isSelected());
@@ -108,7 +121,10 @@ public class VulnersService {
             // update cache
             domains.get(vulnersRequest.getDomain())
                     .getPaths()
-                    .put(vulnersRequest.getPath(), vulnerabilities);
+                    .get(path)
+                    .addAll(vulnerabilities);
+
+            tabComponent.getSoftwareTable().refreshTable(domains, tabComponent.getCbxSoftwareShowVuln().isSelected());
 
             // update gui component
             tabComponent.getPathsTable().getDefaultModel().addRow(new Object[]{

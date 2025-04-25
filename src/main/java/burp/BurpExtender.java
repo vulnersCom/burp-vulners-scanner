@@ -8,6 +8,7 @@ import com.codemagi.burp.ScannerMatch;
 import com.monikamorrow.burp.BurpSuiteTab;
 import org.json.JSONObject;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -77,9 +78,9 @@ public class BurpExtender extends PassiveScan {
 
         if (!domain.getPaths().containsKey(path)) {
             callbacks.printOutput("[Vulners] adding new path '" + path + "' for domain " + domainName);
-            domain.getPaths().put(path, null);
-            vulnersService.checkURLPath(domainName, path, baseRequestResponse);
+            domain.getPaths().put(path, new HashSet<>());
         }
+        vulnersService.checkURLPath(domainName, path, baseRequestResponse);
 
         return issues;
     }
@@ -104,11 +105,14 @@ public class BurpExtender extends PassiveScan {
             domains.put(domainName, domain = new Domain());
         }
 
+        String path = helpers.analyzeRequest(baseRequestResponse).getUrl().getPath();
+        domains.get(domainName).getPaths().computeIfAbsent(path, k -> new HashSet<>());
+
         Collections.sort(matches); //matches must be in order
         ScannerMatch lastMatch = null;
         for (ScannerMatch match : matches) {
 
-            // do not continue if software wal already found before
+            // do not continue if software was already found before
             if (domain.getSoftware().get(match.getType() + match.getMatchGroup()) != null) {
                 continue;
             }
@@ -163,7 +167,7 @@ public class BurpExtender extends PassiveScan {
 
     public void setApiKey(String apiKey) {
         apiKey = apiKey.trim();
-        Pattern pattern = Pattern.compile("[A-Z0-9]{0,128}");
+        Pattern pattern = Pattern.compile("[A-Z0-9]{64,128}");
 
         if (pattern.matcher(apiKey).matches()) {
             callbacks.printOutput("[Vulners] Set API key " + apiKey);
@@ -175,7 +179,8 @@ public class BurpExtender extends PassiveScan {
             callbacks.saveExtensionSetting(SETTING_IS_PREMIUM_NAME, isVulnersPremium);
             this.isPremium = isVulnersPremium.equals("true");
         } else {
-            callbacks.printError("[Vulners] Wrong api key provided, should match /[A-Z0-9]{64}/ " + apiKey);
+            callbacks.printError("[Vulners] Wrong api key provided, should match /[A-Z0-9]{64,128}/ " + apiKey);
+            tabComponent.setAPIKey("Wrong API key format, please recheck");
         }
     }
 
@@ -189,5 +194,9 @@ public class BurpExtender extends PassiveScan {
 
     public boolean isPremiumSubscription(){
         return isPremium;
+    }
+
+    public boolean isShowOnluVuln() {
+        return tabComponent.getCbxSoftwareShowVuln().isSelected();
     }
 }
