@@ -145,14 +145,14 @@ public class SoftwareIssue implements IScanIssue {
     }
 
     private boolean hasVulnerabilities() {
-        return software.getVulnerabilities().size() > 0;
+        return !software.getVulnerabilities().isEmpty();
     }
 
     private String getExploits(Vulnerability vulnerability) {
         StringBuilder string = new StringBuilder();
 
         if (burpExtender.isPremiumSubscription()) {
-            string.append("<ul>");
+            string.append("Exploits:<br/><ul>");
             for (String[] v: vulnerability.getExploits()) {
                 string.append(String.format("<li><a href=\"https://vulners.com/%s/%s\" target=\"_blank\">%s</a></li>", v[0], v[1], v[1]));
             }

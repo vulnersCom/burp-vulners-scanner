@@ -35,9 +35,8 @@ public class PathScanTask extends Thread {
 //        }});
         List<String> paths = Lists.newArrayList();
 //        paths.add(vulnersRequest.getPath());
-        vulnersRequest.getDomain();
 
-        paths.add("/wp-content/cache/");
+        paths.add("/wp-content/plugins/videowhisper-live-streaming-integration/ls/lb_status.php");
 
         JSONObject data = httpClient.getVulnerablePathsV4(paths);
 

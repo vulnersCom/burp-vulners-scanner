@@ -6,9 +6,7 @@ import burp.models.Software;
 import com.codemagi.burp.PassiveScan;
 import com.codemagi.burp.ScannerMatch;
 import com.monikamorrow.burp.BurpSuiteTab;
-import org.json.JSONObject;
 
-import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
@@ -188,15 +186,15 @@ public class BurpExtender extends PassiveScan {
 
     public void printError(String m){ callbacks.printError(m);}
 
-    public Boolean isUseApiV4() {
-        return tabComponent.getCbxApiVersionV4().isSelected();
-    }
+//    public Boolean isUseApiV4() {
+//        return tabComponent.getCbxApiVersionV4().isSelected();
+//    }
 
     public boolean isPremiumSubscription(){
         return isPremium;
     }
 
-    public boolean isShowOnluVuln() {
+    public boolean isShowOnlyVuln() {
         return tabComponent.getCbxSoftwareShowVuln().isSelected();
     }
 }

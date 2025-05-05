@@ -15,15 +15,17 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Map;
 
 import java.net.URI;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 
 public class VulnTable extends JTable {
 
     private final DefaultTableModel defaultModel;
-    private ArrayList<String> vulnTypes=Lists.newArrayList();
+    private final ArrayList<String> vulnTypes=Lists.newArrayList();
 
     public VulnTable(BurpExtender burpExtender, TabComponent tabComponent) {
         DefaultTableModel model = new DefaultTableModel() {
@@ -34,8 +36,7 @@ public class VulnTable extends JTable {
         };
 
         model.addColumn("Vulnerability Id");
-//        model.addColumn("Type");
-
+        model.addColumn("CVSS");
 
         setModel(model);
         this.defaultModel = model;
@@ -52,12 +53,24 @@ public class VulnTable extends JTable {
         defaultModel.setRowCount(0);
         vulnTypes.clear();
 
+        Set<String[]> exploits = new HashSet<>();
+
         for(Vulnerability v: domain.getPaths().get(path)){
             defaultModel.addRow(new Object[]{
-                    v.getId()
-//                    v.getType()
+                    v.getId(),
+                    v.getCvssScore()
             });
             vulnTypes.add(v.getType());
+
+            exploits.addAll(v.getExploits());
+        }
+
+        for(String[] e: exploits){
+            defaultModel.addRow(new Object[]{
+                    e[1],
+                    "exploit"
+            });
+            vulnTypes.add(e[0]);
         }
     }
 
@@ -66,18 +79,16 @@ public class VulnTable extends JTable {
         vulnTypes.clear();
     }
 
-
     public DefaultTableModel getDefaultModel() {
         return defaultModel;
     }
 
+
     class URLSelectionListener extends MouseAdapter{
         private final BurpExtender burpExtender;
-        private final TabComponent tabComponent;
 
         URLSelectionListener(BurpExtender burpExtender, TabComponent tabComponent){
             this.burpExtender = burpExtender;
-            this.tabComponent = tabComponent;
         }
 
         public void mousePressed(MouseEvent event){

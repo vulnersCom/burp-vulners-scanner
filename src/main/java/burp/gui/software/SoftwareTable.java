@@ -15,45 +15,12 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Map;
 
-class URLSelectionListener extends MouseAdapter{
-    private final BurpExtender burpExtender;
-    private final TabComponent tabComponent;
-    private final PathTable pathTable;
-
-    URLSelectionListener(BurpExtender burpExtender, TabComponent tabComponent, PathTable pathTable){
-        this.burpExtender = burpExtender;
-        this.tabComponent = tabComponent;
-        this.pathTable = pathTable;
-    }
-
-    public void mousePressed(MouseEvent event){
-        if(event.isConsumed()){
-            return;
-        }
-
-        JTable table = (JTable) event.getSource();
-        int row = table.rowAtPoint(event.getPoint());
-
-        if(row >= 0){
-            table.setRowSelectionInterval(row, row);
-            int modelRow = table.convertRowIndexToModel(row);
-            TableModel model=table.getModel();
-            String s = (String) model.getValueAt(row,0);
-            Map<String, Domain> domain = burpExtender.getVulnersService().getDomains();
-            Domain d = domain.get(s);
-            this.pathTable.refreshTable(d);
-//            for(String o: d.getSoftware().keySet()){}
-            burpExtender.printOutput("[VULNERS] Table view mouse pressed from " + s);
-            event.consume();
-        }
-
-
-    }
-}
 
 public class SoftwareTable extends JTable {
 
     private final DefaultTableModel defaultModel;
+    private final PathTable pathTable;
+    private final BurpExtender burpExtender;
 
     public SoftwareTable(BurpExtender burpExtender, TabComponent tabComponent, PathTable pathTable) {
         DefaultTableModel model = new DefaultTableModel() {
@@ -64,14 +31,14 @@ public class SoftwareTable extends JTable {
         };
 
         model.addColumn("Domain");
-        model.addColumn("Name");
-        model.addColumn("Version");
         model.addColumn("CVSS Score");
         model.addColumn("Vulnerabilities");
 
         setModel(model);
         this.defaultModel = model;
-        this.addMouseListener(new URLSelectionListener(burpExtender, tabComponent, pathTable));
+        this.pathTable = pathTable;
+        this.burpExtender = burpExtender;
+        this.addMouseListener(new URLSelectionListener());
 
     }
 
@@ -84,9 +51,7 @@ public class SoftwareTable extends JTable {
             }
             defaultModel.addRow(new Object[] {
                     d.getKey(),
-                    "s.getValue().getName()",
-                    "s.getValue().getVersion()",
-                    "Utils.getMaxScore(s.getValue().getVulnerabilities())", //TODO move maxScore field to model
+                    d.getValue().getMaxCVSS(),
                     d.getValue().hasVulnerabilities() ? "true" : "false"
             });
         }
@@ -106,7 +71,42 @@ public class SoftwareTable extends JTable {
 //        }
     }
 
+    public void clearTable() {
+        defaultModel.setRowCount(0);
+        pathTable.clearTable();
+    }
+
     public DefaultTableModel getDefaultModel() {
         return defaultModel;
+    }
+
+    class URLSelectionListener extends MouseAdapter{
+
+        URLSelectionListener(){
+        }
+
+        public void mousePressed(MouseEvent event){
+            if(event.isConsumed()){
+                return;
+            }
+
+            JTable table = (JTable) event.getSource();
+            int row = table.rowAtPoint(event.getPoint());
+
+            if(row >= 0){
+                table.setRowSelectionInterval(row, row);
+                int modelRow = table.convertRowIndexToModel(row);
+                TableModel model=table.getModel();
+                String s = (String) model.getValueAt(row,0);
+                Map<String, Domain> domain = burpExtender.getVulnersService().getDomains();
+                Domain d = domain.get(s);
+                pathTable.refreshTable(d);
+//            for(String o: d.getSoftware().keySet()){}
+                burpExtender.printOutput("[VULNERS] Table view mouse pressed from " + s);
+                event.consume();
+            }
+
+
+        }
     }
 }

@@ -79,19 +79,26 @@ public class VulnersService {
 //                        .add(vulnerability);
 //
 //            }
-            domains.get(vulnersRequest.getDomain())
-                    .getSoftware()
-                    .get(vulnersRequest.getSoftware().getKey())
-                    .getVulnerabilities()
-                    .addAll(vulnerabilities);
 
             domains.get(vulnersRequest.getDomain())
-                    .getPaths()
-                    .get(vulnersRequest.getPath())
-                    .addAll(vulnerabilities);
+                    .addSoftwareVulns(vulnersRequest.getSoftware().getKey(), vulnersRequest.getPath(), vulnerabilities);
+
+//            domains.get(vulnersRequest.getDomain())
+//                    .getSoftware()
+//                    .get(vulnersRequest.getSoftware().getKey())
+//                    .getVulnerabilities()
+//                    .addAll(vulnerabilities);
+
+//            domains.get(vulnersRequest.getDomain())
+//                    .addPathVulns(vulnersRequest.getPath(), vulnerabilities);
+
+//            domains.get(vulnersRequest.getDomain())
+//                    .getPaths()
+//                    .get(vulnersRequest.getPath())
+//                    .addAll(vulnerabilities);
 
             // update gui component
-            tabComponent.getSoftwareTable().refreshTable(domains, tabComponent.getCbxSoftwareShowVuln().isSelected());
+            tabComponent.getSoftwareTable().refreshTable(domains, burpExtender.isShowOnlyVuln());
 
             // add Vulnerability Burp issue
             vulnersRequest.getSoftwareIssue().setSoftware(
@@ -112,33 +119,36 @@ public class VulnersService {
         new PathScanTask(request, httpClient, vulnersRequest -> {
             Set<Vulnerability> vulnerabilities = vulnersRequest.getVulnerabilities();
 
-            // in fact here we have Path vulnerabilities and need to add multiple issues
+            // in fact here we have PathVulnerabilities and need to add multiple issues
 
             if (vulnerabilities.isEmpty()) {
                 return;
             }
 
             // update cache
-            domains.get(vulnersRequest.getDomain())
-                    .getPaths()
-                    .get(path)
-                    .addAll(vulnerabilities);
+            domains.get(vulnersRequest.getDomain()).addPathVulns(path, vulnerabilities);
 
-            tabComponent.getSoftwareTable().refreshTable(domains, tabComponent.getCbxSoftwareShowVuln().isSelected());
+//            domains.get(vulnersRequest.getDomain())
+//                    .getPaths()
+//                    .get(path)
+//                    .addAll(vulnerabilities);
+
+            tabComponent.getSoftwareTable().refreshTable(domains, burpExtender.isShowOnlyVuln());
 
             // update gui component
-            tabComponent.getPathsTable().getDefaultModel().addRow(new Object[]{
-                    vulnersRequest.getDomain(),
-                    vulnersRequest.getPath(),
-                    Utils.getMaxScore(vulnerabilities),
-                    Utils.getVulnersList(vulnerabilities)
-            });
+//            tabComponent.getPathsTable().getDefaultModel().addRow(new Object[]{
+//                    vulnersRequest.getDomain(),
+//                    vulnersRequest.getPath(),
+//                    Utils.getMaxScore(vulnerabilities),
+//                    Utils.getVulnersList(vulnerabilities)
+//            });
 
             // add Burp issue
             callbacks.addScanIssue(new PathIssue(
                     vulnersRequest.getBaseRequestResponse(),
                     helpers,
                     callbacks,
+                    burpExtender,
                     vulnersRequest.getPath(),
                     vulnerabilities
             ));

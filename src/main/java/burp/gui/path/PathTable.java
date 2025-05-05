@@ -1,13 +1,9 @@
 package burp.gui.path;
 
 import burp.BurpExtender;
-import burp.Utils;
 import burp.gui.TabComponent;
-import burp.gui.software.SoftwareTable;
 import burp.gui.vulns.VulnTable;
 import burp.models.Domain;
-import burp.models.Path;
-import burp.models.Software;
 import burp.models.Vulnerability;
 
 import javax.swing.*;
@@ -34,29 +30,37 @@ public class PathTable extends JTable {
         };
 
         model.addColumn("Path");
+        model.addColumn("Potential exploit");
 
         setModel(model);
         this.defaultModel = model;
         this.vulnTable = vulnTable;
         this.burpExtender = burpExtender;
-        this.addMouseListener(new URLSelectionListener(burpExtender));
+        this.addMouseListener(new URLSelectionListener());
 
     }
 
     public void refreshTable(Domain domain) {
         defaultModel.setRowCount(0);
         for (Map.Entry<String, Set<Vulnerability>> s: domain.getPaths().entrySet()) {
-            if(burpExtender.isShowOnluVuln() && s.getValue().isEmpty())
+            if(burpExtender.isShowOnlyVuln() && s.getValue().isEmpty())
             {
                 continue;
             }
             defaultModel.addRow(new Object[] {
-                    s.getKey()
+                    s.getKey(),
+                    s.getValue().stream().anyMatch(Vulnerability::getHasExploit)
             });
         }
         this.d = domain;
         vulnTable.clearTable();
 
+    }
+
+    public void clearTable() {
+        defaultModel.setRowCount(0);
+        this.d = null;
+        vulnTable.clearTable();
     }
 
     public DefaultTableModel getDefaultModel() {
@@ -67,11 +71,8 @@ public class PathTable extends JTable {
 
 
     class URLSelectionListener extends MouseAdapter{
-        private final BurpExtender burpExtender;
 
-
-        URLSelectionListener(BurpExtender burpExtender){
-            this.burpExtender = burpExtender;
+        URLSelectionListener(){
         }
 
         public void mousePressed(MouseEvent event){
