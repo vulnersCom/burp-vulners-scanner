@@ -87,12 +87,9 @@ public class PathTable extends JTable {
                 table.setRowSelectionInterval(row, row);
                 int modelRow = table.convertRowIndexToModel(row);
                 TableModel model=table.getModel();
-                String s = (String) model.getValueAt(row,0);
-//            Map<String, Domain> domain = burpExtender.getVulnersService().getDomains();
-//            Domain d = domain.get(s);
+                String s = (String) model.getValueAt(modelRow,0);
                 Domain d = getD();
                 vulnTable.refreshTable(d, s);
-//            for(String o: d.getSoftware().keySet()){}
                 burpExtender.printOutput("[VULNERS] Table view mouse pressed from " + s);
                 event.consume();
             }

@@ -53,7 +53,7 @@ public class PathIssue implements IScanIssue {
 
         for (final Vulnerability v: vulnerabilities) {
             if(!v.getClass().equals(PathVulnerability.class)){
-                callbacks.printError("[VULNERS] PATH Issue Vulnerability not PathVulnerability but " + v.getClass().toString());
+                burpExtender.printError("[VULNERS] PATH Issue Vulnerability not PathVulnerability but " + v.getClass().toString());
                 throw new RuntimeException("[VULNERS] PATH Issue Vulnerability not PathVulnerability");
             }
             if(((PathVulnerability) v).isOriginal()) {
@@ -120,7 +120,7 @@ public class PathIssue implements IScanIssue {
     private String getExploits(Vulnerability vulnerability) {
         StringBuilder string = new StringBuilder();
 
-        if (burpExtender.isPremiumSubscription()) {
+        if (burpExtender.isPremiumSubscription() && vulnerability.getHasExploit()) {
             string.append("Exploits:<br/><ul>");
             for (String[] v: vulnerability.getExploits()) {
                 string.append(String.format("<li><a href=\"https://vulners.com/%s/%s\" target=\"_blank\">%s</a></li>", v[0], v[1], v[1]));

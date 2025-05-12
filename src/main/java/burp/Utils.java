@@ -46,7 +46,6 @@ public class Utils {
                 vulnerabilities, new Function<Vulnerability, String>() {
                     @Override
                     public String apply(Vulnerability vulnerability) {
-//                        return vulnerability.getId();
                         return vulnerability.getItemLink();
                     }
                 }
@@ -55,8 +54,6 @@ public class Utils {
 
     public Set<Vulnerability> getPathVulnerabilities(JSONObject data) {
         Set<Vulnerability> vulnerabilities=new HashSet<>();
-//        Map<String, Set<Vulnerability>> lVulnerabilities = new HashMap<>();
-
         // Use new API V4
         if(!data.has("result") || !data.get("result").getClass().equals(JSONObject.class))
             return new HashSet<>();
@@ -68,8 +65,6 @@ public class Utils {
             });
         }
 
-//        vulnerabilities.addAll(lVulnerabilities.values());
-
         return vulnerabilities;
     }
 
@@ -78,29 +73,19 @@ public class Utils {
         Set<Vulnerability> vulnerabilities = new HashSet<>();
         Map<String, Vulnerability> lVulnerabilities = new HashMap<>();
 
-        // Parse OLD Api
-        if (data.has("search")) {
-            JSONArray bulletins = data.getJSONArray("search");
-            for (Object bulletin : bulletins) {
-                vulnerabilities.add(
-                        new Vulnerability(((JSONObject) bulletin).getJSONObject("_source"))
-                );
-            }
-        } else {
-            // Use new API V4
-            if(!data.has("result") || !data.get("result").getClass().equals(JSONArray.class))
-                return vulnerabilities;
+        // Use new API V4
+        if(!data.has("result") || !data.get("result").getClass().equals(JSONArray.class))
+            return vulnerabilities;
 
-            String cveId;
-            for (Object entry : data.getJSONArray("result") ) {
-                for (Object vuln: ((JSONObject) entry).getJSONArray("vulnerabilities")) {
-                    cveId = ((JSONObject) vuln).getString("id");
-                    lVulnerabilities.put(cveId, Vulnerability.fromAuditV4((JSONObject) vuln));
-                }
+        String cveId;
+        for (Object entry : data.getJSONArray("result") ) {
+            for (Object vuln: ((JSONObject) entry).getJSONArray("vulnerabilities")) {
+                cveId = ((JSONObject) vuln).getString("id");
+                lVulnerabilities.put(cveId, Vulnerability.fromAuditV4((JSONObject) vuln));
             }
-
-            vulnerabilities.addAll(lVulnerabilities.values());
         }
+
+        vulnerabilities.addAll(lVulnerabilities.values());
 
         return vulnerabilities;
     }

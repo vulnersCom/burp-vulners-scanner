@@ -55,20 +55,6 @@ public class SoftwareTable extends JTable {
                     d.getValue().hasVulnerabilities() ? "true" : "false"
             });
         }
-//        for(Map.Entry<String, Domain> d: domains.entrySet()) {
-//            for (Map.Entry<String, Software> s: d.getValue().getSoftware().entrySet()) {
-//                if (showOnlyVulnerable && s.getValue().getVulnerabilities().size() <= 0) {
-//                    continue;
-//                }
-//                defaultModel.addRow(new Object[] {
-//                        d.getKey(),
-//                        s.getValue().getName(),
-//                        s.getValue().getVersion(),
-//                        Utils.getMaxScore(s.getValue().getVulnerabilities()), //TODO move maxScore field to model
-//                        Utils.getVulnersList(s.getValue().getVulnerabilities())
-//                });
-//            }
-//        }
     }
 
     public void clearTable() {
@@ -97,11 +83,10 @@ public class SoftwareTable extends JTable {
                 table.setRowSelectionInterval(row, row);
                 int modelRow = table.convertRowIndexToModel(row);
                 TableModel model=table.getModel();
-                String s = (String) model.getValueAt(row,0);
+                String s = (String) model.getValueAt(modelRow,0);
                 Map<String, Domain> domain = burpExtender.getVulnersService().getDomains();
                 Domain d = domain.get(s);
                 pathTable.refreshTable(d);
-//            for(String o: d.getSoftware().keySet()){}
                 burpExtender.printOutput("[VULNERS] Table view mouse pressed from " + s);
                 event.consume();
             }

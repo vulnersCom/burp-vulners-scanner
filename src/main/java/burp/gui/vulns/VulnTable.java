@@ -1,10 +1,8 @@
 package burp.gui.vulns;
 
 import burp.BurpExtender;
-import burp.Utils;
 import burp.gui.TabComponent;
 import burp.models.Domain;
-import burp.models.Software;
 import burp.models.Vulnerability;
 import com.google.common.collect.Lists;
 
@@ -17,7 +15,6 @@ import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 
 import java.net.URI;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -53,7 +50,8 @@ public class VulnTable extends JTable {
         defaultModel.setRowCount(0);
         vulnTypes.clear();
 
-        Set<String[]> exploits = new HashSet<>();
+        // there can be multiple vulns with the same exploits, so create a set not to clog up the table with duplicates
+        Set<String> exploits = new HashSet<>();
 
         for(Vulnerability v: domain.getPaths().get(path)){
             defaultModel.addRow(new Object[]{
@@ -62,16 +60,17 @@ public class VulnTable extends JTable {
             });
             vulnTypes.add(v.getType());
 
-            exploits.addAll(v.getExploits());
+            v.getExploits().stream().map(e -> e[1]).forEach(exploits::add);
         }
 
-        for(String[] e: exploits){
+        for(String e: exploits){
             defaultModel.addRow(new Object[]{
-                    e[1],
+                    e,
                     "exploit"
             });
-            vulnTypes.add(e[0]);
+            vulnTypes.add("exploit");
         }
+
     }
 
     public void clearTable() {
@@ -103,7 +102,7 @@ public class VulnTable extends JTable {
                 table.setRowSelectionInterval(row, row);
                 int modelRow = table.convertRowIndexToModel(row);
                 TableModel model=table.getModel();
-                String id = (String) model.getValueAt(row,0);
+                String id = (String) model.getValueAt(modelRow,0);
                 String type =  vulnTypes.get(modelRow);
 
                 burpExtender.printOutput("[VULNERS] Table view mouse pressed for " + id + " of type " + type);
@@ -114,11 +113,11 @@ public class VulnTable extends JTable {
                     try{
                         Desktop.getDesktop().browse(new URI(vulnersLink));
                     } catch (Exception e1) {
-                        burpExtender.printError("[Vulners] Can not open link, please follow " + vulnersLink + " in your browser");
+                        burpExtender.printError("[VULNERS] Can not open link, please follow " + vulnersLink + " in your browser");
                     }
                 }
                 else{
-                    burpExtender.printOutput("[VULNERS] Table view Desktop is disabled so please open the link yourself " + vulnersLink);
+                    burpExtender.printError("[VULNERS] Table view Desktop is disabled so please open the link yourself " + vulnersLink);
                 }
 
                 event.consume();

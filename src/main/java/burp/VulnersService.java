@@ -27,7 +27,7 @@ public class VulnersService {
     private final IBurpExtenderCallbacks callbacks;
     private final IExtensionHelpers helpers;
     private final TabComponent tabComponent;
-    private Map<String, Domain> domains;
+    private final Map<String, Domain> domains;
 
 
     private final HttpClient httpClient;
@@ -70,35 +70,8 @@ public class VulnersService {
 
             Set<Vulnerability> vulnerabilities = vulnersRequest.getVulnerabilities();
 
-            // update cache
-//            for (Vulnerability vulnerability : vulnerabilities) {
-//                domains.get(vulnersRequest.getDomain())
-//                        .getSoftware()
-//                        .get(vulnersRequest.getSoftware().getKey())
-//                        .getVulnerabilities()
-//                        .add(vulnerability);
-//
-//            }
-
             domains.get(vulnersRequest.getDomain())
                     .addSoftwareVulns(vulnersRequest.getSoftware().getKey(), vulnersRequest.getPath(), vulnerabilities);
-
-//            domains.get(vulnersRequest.getDomain())
-//                    .getSoftware()
-//                    .get(vulnersRequest.getSoftware().getKey())
-//                    .getVulnerabilities()
-//                    .addAll(vulnerabilities);
-
-//            domains.get(vulnersRequest.getDomain())
-//                    .addPathVulns(vulnersRequest.getPath(), vulnerabilities);
-
-//            domains.get(vulnersRequest.getDomain())
-//                    .getPaths()
-//                    .get(vulnersRequest.getPath())
-//                    .addAll(vulnerabilities);
-
-            // update gui component
-            tabComponent.getSoftwareTable().refreshTable(domains, burpExtender.isShowOnlyVuln());
 
             // add Vulnerability Burp issue
             vulnersRequest.getSoftwareIssue().setSoftware(
@@ -128,21 +101,6 @@ public class VulnersService {
             // update cache
             domains.get(vulnersRequest.getDomain()).addPathVulns(path, vulnerabilities);
 
-//            domains.get(vulnersRequest.getDomain())
-//                    .getPaths()
-//                    .get(path)
-//                    .addAll(vulnerabilities);
-
-            tabComponent.getSoftwareTable().refreshTable(domains, burpExtender.isShowOnlyVuln());
-
-            // update gui component
-//            tabComponent.getPathsTable().getDefaultModel().addRow(new Object[]{
-//                    vulnersRequest.getDomain(),
-//                    vulnersRequest.getPath(),
-//                    Utils.getMaxScore(vulnerabilities),
-//                    Utils.getVulnersList(vulnerabilities)
-//            });
-
             // add Burp issue
             callbacks.addScanIssue(new PathIssue(
                     vulnersRequest.getBaseRequestResponse(),
@@ -152,13 +110,6 @@ public class VulnersService {
                     vulnersRequest.getPath(),
                     vulnerabilities
             ));
-//            callbacks.addScanIssue(new PathIssue(
-//                    vulnersRequest.getBaseRequestResponse(),
-//                    helpers,
-//                    callbacks,
-//                    "/qwerty",
-//                    vulnerabilities
-//            ));
         }).run();
     }
 
@@ -167,9 +118,7 @@ public class VulnersService {
      */
     public void loadRules() throws IOException {
 
-//        JSONObject data = httpClient.get("rules", new HashMap<String, String>());
         JSONObject data = httpClient.getRules();
-
 
         JSONObject rules = data.getJSONObject("rules");
         Iterator<String> ruleKeys = rules.keys();
@@ -195,7 +144,7 @@ public class VulnersService {
                 // Match group 1 - is important
                 burpExtender.addMatchRule(new MatchRule(pattern, 1, key, ScanIssueSeverity.LOW, ScanIssueConfidence.CERTAIN));
             } catch (PatternSyntaxException pse) {
-                callbacks.printError("[Vulners] Unable to compile pattern: " + v.getString("regex") + " for: " + key);
+                burpExtender.printError("[VULNERS] Unable to compile pattern: " + v.getString("regex") + " for: " + key);
                 burpExtender.printStackTrace(pse);
             }
         }

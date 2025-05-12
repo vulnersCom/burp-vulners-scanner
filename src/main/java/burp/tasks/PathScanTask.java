@@ -29,17 +29,10 @@ public class PathScanTask extends Thread {
 
     @Override
     public void run() {
-
-//        JSONObject data = httpClient.post("path", new HashMap<String, String>() {{
-//            put("path", vulnersRequest.getPath());
-//        }});
         List<String> paths = Lists.newArrayList();
-//        paths.add(vulnersRequest.getPath());
-
-        paths.add("/wp-content/plugins/videowhisper-live-streaming-integration/ls/lb_status.php");
+        paths.add(vulnersRequest.getPath());
 
         JSONObject data = httpClient.getVulnerablePathsV4(paths);
-
 
         Set<Vulnerability> vulnerabilities = utils.getPathVulnerabilities(data);
 

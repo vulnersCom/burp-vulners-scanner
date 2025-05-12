@@ -28,20 +28,10 @@ public class HttpClient {
         this.helpers = helpers;
     }
 
-//    public JSONObject post(String action, Map<String, String> params) {
-//        switch (action){
-//            case "path":
-//                callbacks.printOutput("[Vulners] Got path request for " + params.get("path"));
-//                return getVulnerablePaths("POST", action, params);
-//            default:
-//                return getVulnerableSoftware("POST", params);
-//        }
-//    }
-
     public JSONObject getLicenses() {
 
         if (burpExtender.getApiKey() == null) {
-            callbacks.printError("[Vulners] There must be an API key.");
+            burpExtender.printError("[VULNERS] GetLicenses There must be an API key.");
             return new JSONObject();
         }
 
@@ -59,33 +49,9 @@ public class HttpClient {
         return parseResponse(response);
     }
 
-//    public JSONObject getVulnerablePaths(String method, String action, List<String> paths) {
-//        if(burpExtender.isUseApiV4())
-//            return getVulnerablePathsV4(paths);
-//
-//        if (burpExtender.getApiKey() == null) {
-//            callbacks.printError("[Vulners] There must be an API key.");
-//            return new JSONObject();
-//        }
-//
-//        List<String> headers = new ArrayList<>();
-//        headers.add( method + " " + VULNERS_API_PATH + action + "/ HTTP/1.1");
-//        headers.add("Host: " + VULNERS_API_HOST);
-//        headers.add("User-Agent: vulners-burpscanner-v-" + VULNERS_BURP_VERSION );
-//        headers.add("Content-type: application/json");
-//
-//        JSONObject jsonBody = new JSONObject();
-//        jsonBody.put("path", paths.getFirst());
-//        jsonBody.put("apiKey", burpExtender.getApiKey());
-//
-//        byte[] request = helpers.buildHttpMessage(headers, helpers.stringToBytes(jsonBody.toString()));
-//        byte[] response = callbacks.makeHttpRequest(VULNERS_API_HOST, 443, true, request);
-//        return parseResponse(response);
-//    }
-
     public JSONObject getVulnerablePathsV4(List<String> paths) {
         if (burpExtender.getApiKey() == null) {
-            callbacks.printError("[Vulners] There must be an API key.");
+            burpExtender.printError("[VULNERS] getVulnerablePathsV4 There must be an API key.");
             return new JSONObject();
         }
 
@@ -130,7 +96,7 @@ public class HttpClient {
         JSONObject jsonBody = new JSONObject();
 
         if (burpExtender.getApiKey() == null) {
-            callbacks.printError("[Vulners] requestV4 There must be an API key.");
+            burpExtender.printError("[VULNERS] getVulnerableSoftware There must be an API key.");
             return new JSONObject();
         }
 
@@ -145,15 +111,23 @@ public class HttpClient {
         jsonBody = jsonBody.put("fields", fields);
 
         JSONObject softwareDict = new JSONObject();
+        String[] software;
         switch (params.get("type")){
             case "cpe":
-                String[] software=params.get("software").split(":");
+                software = params.get("software").split(":");
                 softwareDict.put("part", software[1].substring(1));
                 softwareDict.put("vendor", software[2]);
                 softwareDict.put("product", software[3]);
                 break;
             case "software":
                 softwareDict.put("product", params.get("software"));
+                break;
+            case "cpe3":
+                // cpe:2.3:a:ivanti:connect_secure:*:*
+                software = params.get("software").split(":");
+                softwareDict.put("part", software[2]);
+                softwareDict.put("vendor", software[3]);
+                softwareDict.put("product", software[4]);
                 break;
             default:
                 break;
@@ -163,12 +137,6 @@ public class HttpClient {
 
         List<JSONObject> softwareList = new ArrayList<>();
         softwareList.add(softwareDict);
-
-
-//        // TODO: remove in production :)
-        softwareList.add(new JSONObject("{\"product\":\"AEGON LIFE\",\n" +
-                "\"version\": \"1.0\"\n" +
-                "}"));
 
         jsonBody.put("software", softwareList);
         jsonBody = jsonBody.put("apiKey", burpExtender.getApiKey());
@@ -189,13 +157,13 @@ public class HttpClient {
             if (object.getString("result").equals("OK")) {
                 return object.getJSONObject("data");
             } else {
-                callbacks.printOutput("[DEBUG] not OK");
-                callbacks.printOutput(jsonString);
+                burpExtender.printOutput("[VULNERS] not OK");
+                burpExtender.printOutput(jsonString);
                 return object;
             }
         } catch (Exception e) {
-            callbacks.printError("[ERROR]");
-            callbacks.printError(jsonString);
+            burpExtender.printError("[VULNERS]");
+            burpExtender.printError(jsonString);
             return object;
         }
     }
@@ -209,17 +177,17 @@ public class HttpClient {
 
         try {
             if (iResponseInfo.getStatusCode() != 200) {
-                callbacks.printOutput("[DEBUG] V4 not OK");
-                callbacks.printOutput(jsonString);
+                burpExtender.printOutput("[VULNERS] V4 not OK");
+                burpExtender.printOutput(jsonString);
             } else if (object.get("result").getClass().equals(String.class)) {
                 // Something went wrong, and error should be in the .data.error
                 String errorDesc = object.getJSONObject("data").getString("error");
-                callbacks.printError("[VULNERS] Error occured while sendind http request to vulners: " + errorDesc);
+                burpExtender.printError("[VULNERS] Error occured while sending http request to vulners: " + errorDesc);
             }
             return object;
         } catch (Exception e) {
-            callbacks.printError("[ERROR] V4");
-            callbacks.printError(jsonString);
+            burpExtender.printError("[ERROR] V4");
+            burpExtender.printError(jsonString);
             return object;
         }
     }

@@ -151,7 +151,7 @@ public class SoftwareIssue implements IScanIssue {
     private String getExploits(Vulnerability vulnerability) {
         StringBuilder string = new StringBuilder();
 
-        if (burpExtender.isPremiumSubscription()) {
+        if (burpExtender.isPremiumSubscription() && vulnerability.getHasExploit()) {
             string.append("Exploits:<br/><ul>");
             for (String[] v: vulnerability.getExploits()) {
                 string.append(String.format("<li><a href=\"https://vulners.com/%s/%s\" target=\"_blank\">%s</a></li>", v[0], v[1], v[1]));

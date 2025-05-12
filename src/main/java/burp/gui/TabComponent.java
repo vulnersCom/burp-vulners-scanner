@@ -3,7 +3,6 @@ package burp.gui;
 import burp.BurpExtender;
 import burp.IBurpExtenderCallbacks;
 import burp.gui.path.PathTable;
-import burp.gui.path.PathsTable;
 import burp.gui.rules.RulesTable;
 import burp.gui.rules.RulesTableListener;
 import burp.gui.software.SoftwareTable;
@@ -21,7 +20,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
@@ -36,10 +34,8 @@ public class TabComponent {
     private final IBurpExtenderCallbacks callbacks;
     private JTable tblRules;
     private JTable tblSoftware;
-    //    private JTable tblPaths;
     private JCheckBox cbxPathSearch;
     private JButton btnTblSoftwareClear;
-    //    private JButton btnTblPathClear;
     private JCheckBox cbxSoftwareShowVuln;
     private JTabbedPane tabbedPane1;
     private JTextField tbxReqLimit;
@@ -49,9 +45,9 @@ public class TabComponent {
     private JButton btnApi;
     private JTable tblVuln;
     private JTable tblPath;
+    private JCheckBox cbxIsDebug;
 
     private RulesTable rulesTable;
-    //    private PathsTable pathsTable;
     private PathTable pathTable;
     private SoftwareTable softwareTable;
     private VulnTable vulnTable;
@@ -81,33 +77,21 @@ public class TabComponent {
             try {
                 burpExtender.getVulnersService().loadRules();
             } catch (IOException e1) {
-                callbacks.printError(e1.getMessage());
+                burpExtender.printError(e1.getMessage());
             }
         }).start());
 
-//        btnTblPathClear.addActionListener(e -> {
-//            for (Map.Entry<String, Domain> d : domains.entrySet()) {
-//                d.getValue().setPaths(new HashMap<>());
-//            }
-//            pathsTable.getDefaultModel().setRowCount(0);
-//        });
 
         btnTblSoftwareClear.addActionListener(e -> {
             for (Map.Entry<String, Domain> d : domains.entrySet()) {
                 d.getValue().clear();
-                d.getValue().setSoftware(new HashMap<>());
-                d.getValue().setPaths(new HashMap<>());
             }
             softwareTable.clearTable();
-//            softwareTable.getDefaultModel().setRowCount(0);
-//            pathTable.clearTable();
         });
 
         cbxSoftwareShowVuln.addActionListener(e -> {
             softwareTable.refreshTable(domains, cbxSoftwareShowVuln.isSelected());
             pathTable.clearTable();
-//            pathTable.getDefaultModel().setRowCount(0);
-//            vulnTable.getDefaultModel().setRowCount(0);
         });
 
         linkLabel.addMouseListener(new MouseAdapter() {
@@ -117,7 +101,7 @@ public class TabComponent {
                 try {
                     Desktop.getDesktop().browse(new URI(vulnersLink));
                 } catch (Exception e1) {
-                    callbacks.printError("[Vulners] Can not open link, please follow " + vulnersLink + " in your browser");
+                    burpExtender.printError("[VULNERS] Can not open link, please follow " + vulnersLink + " in your browser");
                 }
             }
         });
@@ -128,7 +112,6 @@ public class TabComponent {
      */
     private void createUIComponents() {
         tblRules = rulesTable = new RulesTable();
-//        tblPaths = pathsTable = new PathsTable();
         tblVuln = vulnTable = new VulnTable(burpExtender, this);
         tblPath = pathTable = new PathTable(burpExtender, this, vulnTable);
         tblSoftware = softwareTable = new SoftwareTable(burpExtender, this, pathTable);
@@ -138,10 +121,6 @@ public class TabComponent {
         return rootPanel;
     }
 
-//    public PathsTable getPathsTable() {
-//        return pathsTable;
-//    }
-
     public SoftwareTable getSoftwareTable() {
         return softwareTable;
     }
@@ -150,16 +129,16 @@ public class TabComponent {
         return cbxPathSearch;
     }
 
-/*    public JCheckBox getCbxApiVersionV4() {
-        return cbxApiVersionV4;
-    }*/
-
     public JCheckBox getCbxSoftwareShowVuln() {
         return cbxSoftwareShowVuln;
     }
 
     public JCheckBox getCbxPathScanInScope() {
         return cbxPathScanInScope;
+    }
+
+    public JCheckBox getCbxIsDebug() {
+        return cbxIsDebug;
     }
 
     public RulesTable getRulesTable() {
@@ -225,7 +204,7 @@ public class TabComponent {
         label5.setText("API Token   ");
         panel3.add(label5, new GridConstraints(0, 0, 1, 3, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final JLabel label6 = new JLabel();
-        label6.setText("Provide you persanal API token to improve scan speed while using vulners.com api");
+        label6.setText("Provide you persanal API token to scan using vulners.com api");
         panel3.add(label6, new GridConstraints(1, 0, 1, 2, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         btnApi = new JButton();
         btnApi.setText("Add");
@@ -300,7 +279,7 @@ public class TabComponent {
         tblPath.setAutoCreateRowSorter(true);
         scrollPane3.setViewportView(tblPath);
         final JPanel panel7 = new JPanel();
-        panel7.setLayout(new GridLayoutManager(4, 2, new Insets(10, 0, 0, 0), -1, -1));
+        panel7.setLayout(new GridLayoutManager(5, 2, new Insets(10, 0, 0, 0), -1, -1));
         tabbedPane1.addTab("Options", panel7);
         final JLabel label9 = new JLabel();
         Font label9Font = this.$$$getFont$$$(null, Font.BOLD, -1, label9.getFont());
@@ -316,7 +295,7 @@ public class TabComponent {
         label10.setText("Use scan by locations paths");
         panel7.add(label10, new GridConstraints(1, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
         final Spacer spacer3 = new Spacer();
-        panel7.add(spacer3, new GridConstraints(3, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
+        panel7.add(spacer3, new GridConstraints(4, 0, 1, 2, GridConstraints.ANCHOR_CENTER, GridConstraints.FILL_VERTICAL, 1, GridConstraints.SIZEPOLICY_WANT_GROW, null, null, null, 0, false));
         final JLabel label11 = new JLabel();
         label11.setText("Scope Only");
         panel7.add(label11, new GridConstraints(2, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
@@ -325,6 +304,15 @@ public class TabComponent {
         cbxPathScanInScope.setSelected(true);
         cbxPathScanInScope.setText("");
         panel7.add(cbxPathScanInScope, new GridConstraints(2, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
+        final JLabel label12 = new JLabel();
+        label12.setEnabled(true);
+        label12.setText("Turn debug messaging on");
+        panel7.add(label12, new GridConstraints(3, 0, 1, 1, GridConstraints.ANCHOR_EAST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_FIXED, GridConstraints.SIZEPOLICY_FIXED, null, null, null, 0, false));
+        cbxIsDebug = new JCheckBox();
+        cbxIsDebug.setEnabled(true);
+        cbxIsDebug.setSelected(true);
+        cbxIsDebug.setText("");
+        panel7.add(cbxIsDebug, new GridConstraints(3, 1, 1, 1, GridConstraints.ANCHOR_WEST, GridConstraints.FILL_NONE, GridConstraints.SIZEPOLICY_CAN_SHRINK | GridConstraints.SIZEPOLICY_CAN_GROW, GridConstraints.SIZEPOLICY_FIXED, null, new Dimension(51, 20), null, 0, false));
     }
 
     /**
