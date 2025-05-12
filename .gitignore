@@ -3,3 +3,4 @@
 /burp-vulners-scanner.iml
 /target/
 !/target/burp-vulners-scanner-1.2.jar
+!/target/burp-vulners-scanner-1.4.jar
