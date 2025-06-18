@@ -74,7 +74,7 @@ public class HttpClient {
 
     public JSONObject getRules() {
         List<String> headers = new ArrayList<>();
-        headers.add("GET " + VULNERS_API_GET_RULES_PATH + "/ HTTP/1.1");
+        headers.add("GET " + VULNERS_API_GET_RULES_PATH + " HTTP/1.1");
         headers.add("Host: " + VULNERS_API_HOST);
         headers.add("User-Agent: vulners-burpscanner-v-" + VULNERS_BURP_VERSION );
         headers.add("Content-type: application/json");
