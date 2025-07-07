@@ -11,6 +11,7 @@ import burp.tasks.SoftwareScanTask;
 import com.codemagi.burp.MatchRule;
 import com.codemagi.burp.ScanIssueConfidence;
 import com.codemagi.burp.ScanIssueSeverity;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.swing.table.DefaultTableModel;
@@ -26,7 +27,7 @@ public class VulnersService {
     private final IBurpExtenderCallbacks callbacks;
     private final IExtensionHelpers helpers;
     private final TabComponent tabComponent;
-    private Map<String, Domain> domains;
+    private final Map<String, Domain> domains;
 
 
     private final HttpClient httpClient;
@@ -50,6 +51,7 @@ public class VulnersService {
                 baseRequestResponse,
                 helpers,
                 callbacks,
+                burpExtender,
                 startStop,
                 domains.get(domainName).getSoftware().get(software.getKey())
         );
@@ -60,23 +62,16 @@ public class VulnersService {
             return;
         }
 
-        VulnersRequest request = new VulnersRequest(domainName, software, softwareIssue);
+        String path = helpers.analyzeRequest(baseRequestResponse).getUrl().getPath();
+
+        VulnersRequest request = new VulnersRequest(domainName, software, softwareIssue, path);
 
         new SoftwareScanTask(request, httpClient, vulnersRequest -> {
 
             Set<Vulnerability> vulnerabilities = vulnersRequest.getVulnerabilities();
 
-            // update cache
-            for (Vulnerability vulnerability : vulnerabilities) {
-                domains.get(vulnersRequest.getDomain())
-                        .getSoftware()
-                        .get(vulnersRequest.getSoftware().getKey())
-                        .getVulnerabilities()
-                        .add(vulnerability);
-            }
-
-            // update gui component
-            tabComponent.getSoftwareTable().refreshTable(domains, tabComponent.getCbxSoftwareShowVuln().isSelected());
+            domains.get(vulnersRequest.getDomain())
+                    .addSoftwareVulns(vulnersRequest.getSoftware().getKey(), vulnersRequest.getPath(), vulnerabilities);
 
             // add Vulnerability Burp issue
             vulnersRequest.getSoftwareIssue().setSoftware(
@@ -97,28 +92,21 @@ public class VulnersService {
         new PathScanTask(request, httpClient, vulnersRequest -> {
             Set<Vulnerability> vulnerabilities = vulnersRequest.getVulnerabilities();
 
+            // in fact here we have PathVulnerabilities and need to add multiple issues
+
             if (vulnerabilities.isEmpty()) {
                 return;
             }
 
             // update cache
-            domains.get(vulnersRequest.getDomain())
-                    .getPaths()
-                    .put(vulnersRequest.getPath(), vulnerabilities);
-
-            // update gui component
-            tabComponent.getPathsTable().getDefaultModel().addRow(new Object[]{
-                    vulnersRequest.getDomain(),
-                    vulnersRequest.getPath(),
-                    Utils.getMaxScore(vulnerabilities),
-                    Utils.getVulnersList(vulnerabilities)
-            });
+            domains.get(vulnersRequest.getDomain()).addPathVulns(path, vulnerabilities);
 
             // add Burp issue
             callbacks.addScanIssue(new PathIssue(
                     vulnersRequest.getBaseRequestResponse(),
                     helpers,
                     callbacks,
+                    burpExtender,
                     vulnersRequest.getPath(),
                     vulnerabilities
             ));
@@ -130,7 +118,7 @@ public class VulnersService {
      */
     public void loadRules() throws IOException {
 
-        JSONObject data = httpClient.get("rules", new HashMap<String, String>());
+        JSONObject data = httpClient.getRules();
 
         JSONObject rules = data.getJSONObject("rules");
         Iterator<String> ruleKeys = rules.keys();
@@ -156,10 +144,30 @@ public class VulnersService {
                 // Match group 1 - is important
                 burpExtender.addMatchRule(new MatchRule(pattern, 1, key, ScanIssueSeverity.LOW, ScanIssueConfidence.CERTAIN));
             } catch (PatternSyntaxException pse) {
-                callbacks.printError("[Vulners] Unable to compile pattern: " + v.getString("regex") + " for: " + key);
+                burpExtender.printError("[VULNERS] Unable to compile pattern: " + v.getString("regex") + " for: " + key);
                 burpExtender.printStackTrace(pse);
             }
         }
     }
+
+    public String isPremiumSubscription(){
+        JSONObject licensesData = httpClient.getLicenses();
+
+        if(licensesData.get("licenseList").getClass().equals(JSONArray.class)) {
+            for (Object obj : licensesData.getJSONArray("licenseList")){
+                if(!((JSONObject)obj).optString("type","").equals("free")){
+                    // If there is at least one non-free license
+                    return "true";
+                }
+            }
+        }
+
+        return "false";
+    }
+
+    public Map<String, Domain> getDomains() {
+        return domains;
+    }
+
 
 }

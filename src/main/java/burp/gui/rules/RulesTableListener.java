@@ -47,7 +47,7 @@ public class RulesTableListener implements TableModelListener {
 
         switch (column) {
             case 0:
-                mCallbacks.printOutput("[Vulners] new pattern: " + (String)model.getValueAt(row, column));
+                mCallbacks.printOutput("[VULNERS] new pattern: " + (String)model.getValueAt(row, column));
                 rule.setPattern(Pattern.compile((String)model.getValueAt(row, column)));
                 break;
             case 1:

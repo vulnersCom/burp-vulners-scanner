@@ -14,10 +14,11 @@ public class VulnersRequest {
     private IHttpRequestResponse baseRequestResponse;
     private Set<Vulnerability> vulnerabilities;
 
-    public VulnersRequest(String domainName, Software software, SoftwareIssue softwareIssue) {
+    public VulnersRequest(String domainName, Software software, SoftwareIssue softwareIssue, String path) {
         this.software = software;
         this.domainName = domainName;
         this.softwareIssue = softwareIssue;
+        this.path = path;
     }
 
     public VulnersRequest(String domainName, String path, IHttpRequestResponse baseRequestResponse) {
