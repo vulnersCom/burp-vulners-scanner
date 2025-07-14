@@ -6,10 +6,13 @@ import burp.models.Software;
 import com.codemagi.burp.PassiveScan;
 import com.codemagi.burp.ScannerMatch;
 import com.monikamorrow.burp.BurpSuiteTab;
+//import javax.swing.Timer;
 
+import javax.swing.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.Timer;
 import java.util.regex.Pattern;
 
 
@@ -51,13 +54,17 @@ public class BurpExtender extends PassiveScan {
         printOutput("[VULNERS] set Timer to update table");
         Timer timer = new Timer();
 
+        Runnable run = () -> {
+            tabComponent.getSoftwareTable().refreshTable(domains, isShowOnlyVuln());
+            printOutput("[VULNERS] update table");
+        };
+
         // update table every 5 seconds
         // otherwise updates happen too fast and GUI breaks with loads of NullPointerExceptions
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                tabComponent.getSoftwareTable().refreshTable(domains, isShowOnlyVuln());
-                printOutput("[VULNERS] update table");
+                SwingUtilities.invokeLater(run);
             }
         }, 1000, 5000);
     }
