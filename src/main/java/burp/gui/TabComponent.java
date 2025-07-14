@@ -86,6 +86,7 @@ public class TabComponent {
             for (Map.Entry<String, Domain> d : domains.entrySet()) {
                 d.getValue().clear();
             }
+            domains.clear();
             softwareTable.clearTable();
         });
 
