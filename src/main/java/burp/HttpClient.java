@@ -36,9 +36,10 @@ public class HttpClient {
         }
 
         List<String> headers = new ArrayList<>();
-        headers.add("GET " + VULNERS_API_GET_LICENSES + "?apiKey=" + burpExtender.getApiKey() + " HTTP/1.1");
+        headers.add("GET " + VULNERS_API_GET_LICENSES + " HTTP/1.1");
         headers.add("Host: " + VULNERS_API_HOST);
         headers.add("User-Agent: vulners-burpscanner-v-" + VULNERS_BURP_VERSION );
+        headers.add("X-Api-Key: " + burpExtender.getApiKey());
         headers.add("Content-type: application/json");
 
         JSONObject jsonBody = new JSONObject();
